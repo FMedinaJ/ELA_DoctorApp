@@ -1,4 +1,4 @@
 package interfaces;
 
-public class UserManager {
+public interface UserManager {
 }

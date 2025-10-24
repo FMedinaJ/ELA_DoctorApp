@@ -1,4 +1,4 @@
 package interfaces;
 
-public class PatientManager {
+public interface PatientManager {
 }

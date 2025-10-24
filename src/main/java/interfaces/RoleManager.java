@@ -1,4 +1,4 @@
 package interfaces;
 
-public class RoleManager {
+public interface RoleManager {
 }

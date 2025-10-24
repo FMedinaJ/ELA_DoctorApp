@@ -1,4 +1,4 @@
 package interfaces;
 
-public class MedicalInformationManager {
+public interface MedicalInformationManager {
 }

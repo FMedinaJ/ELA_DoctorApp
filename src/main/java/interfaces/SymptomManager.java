@@ -1,4 +1,4 @@
 package interfaces;
 
-public class SymptomManager {
+public interface SymptomManager {
 }
