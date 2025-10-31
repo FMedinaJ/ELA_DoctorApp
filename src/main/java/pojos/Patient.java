@@ -8,7 +8,7 @@ public class Patient {
     private String name;
     private String surname;
     private String dni;
-    private Date dateOfBirth;
+    private java.sql.Date dateOfBirth;
     private String sex;
     private Integer phone;
     private String email;
@@ -57,7 +57,7 @@ public class Patient {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(java.sql.Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
