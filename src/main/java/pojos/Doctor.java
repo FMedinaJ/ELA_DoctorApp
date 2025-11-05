@@ -10,7 +10,7 @@ public class Doctor {
     private String surname;
     private String DNI;
     private java.sql.Date birthDate;
-    private String gender;
+    private String Sex;
     public String email;
 
     public Doctor(Integer id, String name, String surname, String DNI, java.sql.Date birthDate, String gender, String email) {
@@ -19,7 +19,7 @@ public class Doctor {
         this.surname = surname;
         this.DNI = DNI;
         this.birthDate = birthDate;
-        this.gender = gender;
+        this.Sex = gender;
         this.email = email;
     }
 
@@ -63,12 +63,12 @@ public class Doctor {
         this.birthDate = birthDate;
     }
 
-    public String getGender() {
-        return gender;
+    public String getSex() {
+        return Sex;
     }
 
-    public void setGender(String gender) {
-        this.gender = gender;
+    public void setSex(String gender) {
+        this.Sex = gender;
     }
 
     public String getEmail() {
@@ -83,13 +83,13 @@ public class Doctor {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Doctor doctor = (Doctor) o;
-        return id == doctor.id && DNI == doctor.DNI && Objects.equals(name, doctor.name) && Objects.equals(surname, doctor.surname) && Objects.equals(birthDate, doctor.birthDate) && Objects.equals(gender, doctor.gender) && Objects.equals(email, doctor.email);
+        return id == doctor.id && DNI == doctor.DNI && Objects.equals(name, doctor.name) && Objects.equals(surname, doctor.surname) && Objects.equals(birthDate, doctor.birthDate) && Objects.equals(Sex, doctor.Sex) && Objects.equals(email, doctor.email);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, surname, DNI, birthDate, gender, email);
+        return Objects.hash(id, name, surname, DNI, birthDate, Sex, email);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class Doctor {
                 ", surname='" + surname + '\'' +
                 ", DNI=" + DNI +
                 ", birthDate=" + birthDate +
-                ", gender='" + gender + '\'' +
+                ", gender='" + Sex + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }
