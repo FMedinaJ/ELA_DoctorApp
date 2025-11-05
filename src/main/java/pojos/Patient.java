@@ -21,6 +21,19 @@ public class Patient {
         this.insurance = insurance;
     }
 
+
+    public Patient(Integer id, String name, String surname, String dni, java.sql.Date dateOfBirth, String sex, Integer phone, String email, Integer insurance) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
+        this.dni = dni;
+        this.dateOfBirth = dateOfBirth;
+        this.sex = sex;
+        this.phone = phone;
+        this.email = email;
+        this.insurance = insurance;
+    }
+
     public Integer getId() {
         return id;
     }
