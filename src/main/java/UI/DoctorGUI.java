@@ -107,7 +107,7 @@ public class DoctorGUI {
         JTextField emailField = new JTextField();
         panel.add(emailField);
 
-        panel.add(new JLabel("Gender:"));
+        panel.add(new JLabel("Sex:"));
         JTextField genderField = new JTextField();
         panel.add(genderField);
 
@@ -116,10 +116,11 @@ public class DoctorGUI {
         panel.add(dobField);
 
 
+
         JButton sendButton = new JButton("Send");
         panel.add(sendButton);
         sendButton.addActionListener(e -> {
-            System.out.println("Regsiter Doctor: " + nameField.getText());
+            System.out.println("Register Doctor: " + nameField.getText());
         });
         frame.add(panel);
         frame.setVisible(true);
