@@ -22,6 +22,9 @@ public class Doctor {
         this.Sex = gender;
         this.email = email;
     }
+    public Doctor(){
+
+    }
 
     public Integer getId() {
         return id;
@@ -50,8 +53,7 @@ public class Doctor {
     public String getDNI() {
         return DNI;
     }
-
-    public void String ( String DNI) {
+    public void setDNI(String DNI) {
         this.DNI = DNI;
     }
 
