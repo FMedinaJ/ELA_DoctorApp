@@ -13,6 +13,8 @@ import static UI.DoctorApp.selectPatient;
 
 public class Doctor {
     Socket socket = null;
+    SendDataViaNetwork sendDataViaNetwork;
+    ReceiveDataViaNetwork receiveDataViaNetwork;
 
     public void register() throws IOException {
         // Crear un objeto Doctor y obtener los datos del doctor
@@ -91,10 +93,28 @@ public class Doctor {
         }
     }
     public void viewPatientData(int patientId) throws IOException {
-        ReceiveDataViaNetwork receiveDataViaNetwork= new ReceiveDataViaNetwork(socket);
+        SendDataViaNetwork sendData = new SendDataViaNetwork(socket);
+        ReceiveDataViaNetwork receiveDataViaNetwork = new ReceiveDataViaNetwork(socket);
+
+        // Solicitar los datos del paciente
+        sendData.sendInt(patientId);
+
+        // Recibir los detalles del paciente desde el servidor
+        String patientData = receiveDataViaNetwork.receiveString();
+        System.out.println("Patient Data: " + patientData);
 
     }
     public void addFeedback(int patientId) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your feedback: ");
+        String feedback = scanner.nextLine();
+        sendDataViaNetwork.sendInt(patientId); //enviar id del paciente
+        sendDataViaNetwork.sendString(feedback);
+        String feedbackData = receiveDataViaNetwork.receiveString();
+        System.out.println("Feedback: " + feedbackData);
+
+
+
 
     }
     public void viewRecordedSignal(int patientId) throws IOException {

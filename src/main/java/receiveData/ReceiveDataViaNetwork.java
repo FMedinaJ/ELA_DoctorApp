@@ -56,8 +56,8 @@ public class ReceiveDataViaNetwork {
     }
 
     public Patient receivePatient(){
+        Patient patient= null;
         try{
-            Patient patient;
             int id=dataInputStream.readInt();
             String name = dataInputStream.readUTF();
             String surname = dataInputStream.readUTF();
@@ -71,7 +71,7 @@ public class ReceiveDataViaNetwork {
         }catch(IOException e){
             e.printStackTrace();
         }
-        return null;
+        return patient;
     }
     //Obtiene el sintoma desde el servidor, se solicita la informacion.
     public Symptom getSymptomFromServer(int symptomId) {
