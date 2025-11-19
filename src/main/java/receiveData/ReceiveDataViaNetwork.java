@@ -139,12 +139,12 @@ public class ReceiveDataViaNetwork {
         List<Patient> patients = new ArrayList<>();
         try {
             int numberOfPatients = dataInputStream.readInt();  // Primero, leer cuántos pacientes hay
-            for (int i = 0; i < numberOfPatients; i++) {
-                // Aquí estamos utilizando el método `receivePatient` para recibir a cada paciente individualmente
-                Patient patient = receivePatient();
-                if (patient != null) {
-                    patients.add(patient);
-                }
+                for (int i = 0; i < numberOfPatients; i++) {
+                    // Aquí estamos utilizando el método `receivePatient` para recibir a cada paciente individualmente
+                    Patient patient = receivePatient();
+                    if (patient != null) {
+                        patients.add(patient);
+                    }
             }
         } catch (IOException e) {
             System.err.println("Error receiving patient list: " + e.getMessage());

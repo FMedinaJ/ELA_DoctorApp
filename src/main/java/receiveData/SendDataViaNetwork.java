@@ -1,12 +1,16 @@
 package receiveData;
 
 import pojos.*;
+import sun.misc.Signal;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
+
+
 
 public class SendDataViaNetwork {
     private DataOutputStream dataOutputStream;
@@ -93,7 +97,14 @@ public class SendDataViaNetwork {
         dataOutputStream.writeUTF(doctor.getSex());
         dataOutputStream.writeUTF(doctor.getEmail());
         dataOutputStream.flush();
-}
+
+
+    }
+
+    public void sendSignal(Signal signal) throws IOException {
+        
+
+    }
 
 
 
