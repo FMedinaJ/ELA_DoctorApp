@@ -37,29 +37,13 @@ public class Signal {
      */
     public static final int samplingrate = 100;
 
-    /**
-     * Enum representing the possible types of signals.
-     */
-    public enum SignalType {
-        /**
-         * Represents an EMG (electromyography) signal.
-         */
-        EMG,
 
-        /**
-         * Represents an Accelerometer signal.
-         */
-        Accelerometer
+    public Signal(List<Integer> values, String signalFilename, SignalType signalType) {
+        this.values = values;
+        this.signalFilename = signalFilename;
+        this.signalType = signalType;
     }
 
-    /**
-     * Constructor to initialize a signal with a specific type.
-     * @param signaltype the type of the signal (EMG or Accelerometer).
-     */
-    public Signal(SignalType signaltype){
-        this.values = new LinkedList<>();
-        this.signalType = signaltype;
-    }
 
     /**
      * Returns the list of values representing the signal data.
@@ -102,9 +86,9 @@ public class Signal {
      *
      * @return The filename of the signal data.
      */
-    public String getSignalFilename() {
-        return signalFilename;
-    }
+   public String getSignalFilename() {
+       return signalFilename;
+   }
 
     /**
      * Sets the filename where the signal data is stored.

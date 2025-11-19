@@ -1,6 +1,6 @@
 package receiveData;
 
-import pojos.*;
+
 import sun.misc.Signal;
 
 import java.io.DataInputStream;
@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
+import pojos.*;
 
 
 
@@ -101,14 +102,25 @@ public class SendDataViaNetwork {
 
     }
 
+    // Método para enviar un Signal
     public void sendSignal(Signal signal) throws IOException {
-        
+        /**Enviar la longitud de la lista de valores
+        dataOutputStream.writeInt(signal.getValues().size());  // Enviar el tamaño de la lista
 
+        // Enviar cada valor de la lista de Integer
+        for (Integer value : signal.getValues()) {
+            dataOutputStream.writeInt(value);  // Enviar cada valor
+        }
+
+        // Enviar el nombre del archivo (signalFilename)
+        dataOutputStream.writeUTF(signal.getSignalFilename());
+
+        // Enviar el tipo de señal (signalType) como String
+        dataOutputStream.writeUTF(signal.getSignalType().toString());  // Convertir a String y enviar**/
     }
-
-
-
-
-
 }
+
+
+
+
 

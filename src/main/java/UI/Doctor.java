@@ -5,9 +5,10 @@ import java.net.Socket;
 import java.sql.Date;
 import java.util.List;
 import java.util.Scanner;
-import pojos.*;
 import receiveData.*;
-import sun.misc.Signal;
+import pojos.Signal;
+import pojos.Patient;
+
 
 import javax.sound.midi.Soundbank;
 
@@ -121,9 +122,18 @@ public class Doctor {
 
     }
     public void viewRecordedSignal(int patientId) throws IOException {
-       sendDataViaNetwork.sendInt(patientId);
+        // Enviar solicitud para ver las señales grabadas del paciente
+        sendDataViaNetwork.sendInt(patientId);  // Enviar el ID del paciente
 
+        // Recibir la señal grabada desde el servidor
+        Signal signal = receiveDataViaNetwork.receiveSignal();  // Llamar al método para recibir el Signal
+
+        // Mostrar los detalles de la señal recibida
+        System.out.println("Signal Filename: " + signal.getSignalFilename());
+        System.out.println("Signal Type: " + signal.getSignalType());
+        System.out.println("Signal Values: " + signal.getValues());
     }
+
     public void changePatientData(int patientId) throws IOException {
         Scanner scanner = new Scanner(System.in);
 

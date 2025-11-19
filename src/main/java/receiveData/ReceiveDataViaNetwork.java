@@ -1,6 +1,8 @@
 package receiveData;
-import pojos.*;
-
+import pojos.Patient;
+import pojos.Signal;
+import pojos.SignalType;
+import pojos. *;
 import java.io.*;
 import java.net.Socket;
 import java.sql.Date;
@@ -153,5 +155,31 @@ public class ReceiveDataViaNetwork {
         return patients;  // Regresamos la lista de pacientes
     }
 
+    // Método para recibir un Signal
+    public Signal receiveSignal() throws IOException {
+        // Recibir la longitud de la lista de valores
+        int size = dataInputStream.readInt();  // Primero leemos el tamaño de la lista
+
+        // Crear una lista de enteros (List<Integer>)
+        List<Integer> values = new ArrayList<>();
+
+        // Leer cada valor de la lista (List<Integer>)
+        for (int i = 0; i < size; i++) {
+            values.add(dataInputStream.readInt());  // Recibir y agregar cada valor a la lista
+        }
+
+        // Recibir el nombre del archivo (String) - signalFilename
+        String signalFilename = dataInputStream.readUTF();
+
+        // Recibir el tipo de señal (SignalType) como String y convertirlo a SignalType
+        String signalTypeString = dataInputStream.readUTF();  // Recibimos el tipo de la señal como String
+        SignalType signalType = SignalType.valueOf(signalTypeString);  // Convertimos el String a enum SignalType
+
+        // Crear y devolver el objeto Signal con los datos recibidos
+        return new Signal(values, signalFilename, signalType);
+    }
+
+
 
 }
+
