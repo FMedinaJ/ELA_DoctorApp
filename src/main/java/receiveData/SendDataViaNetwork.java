@@ -101,10 +101,10 @@ public class SendDataViaNetwork {
 
 
     }
-
+/**
     // Método para enviar un Signal
     public void sendSignal(Signal signal) throws IOException {
-        /**Enviar la longitud de la lista de valores
+        //Enviar la longitud de la lista de valores
         dataOutputStream.writeInt(signal.getValues().size());  // Enviar el tamaño de la lista
 
         // Enviar cada valor de la lista de Integer
@@ -116,8 +116,8 @@ public class SendDataViaNetwork {
         dataOutputStream.writeUTF(signal.getSignalFilename());
 
         // Enviar el tipo de señal (signalType) como String
-        dataOutputStream.writeUTF(signal.getSignalType().toString());  // Convertir a String y enviar**/
-    }
+        dataOutputStream.writeUTF(signal.getSignalType().toString());  // Convertir a String y enviar
+    }**/
 }
 
 
