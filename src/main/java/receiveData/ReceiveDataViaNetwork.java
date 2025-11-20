@@ -16,62 +16,58 @@ public class ReceiveDataViaNetwork {
     private DataInputStream dataInputStream;
     private Socket socket;
 
-    public ReceiveDataViaNetwork(Socket socket)  {
-        try{
-            this.dataInputStream= new DataInputStream(socket.getInputStream());
-
-        }catch(IOException e){
-            e.printStackTrace();
-
-        }
-
-    }
-    public String receiveString(){
-        try{
-            String information;
-            information= dataInputStream.readUTF();
-            return information;
-
-        }catch(IOException e){
+    public ReceiveDataViaNetwork(Socket socket) {
+        try {
+            this.dataInputStream = new DataInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            System.err.println("Error inicializing: " + e.getMessage());
             e.printStackTrace();
         }
-        return null;
-
     }
-    public Doctor receiveDoctor(){
-        try{
-            Doctor doctor;
+
+    public String receiveString() throws IOException {
+        return dataInputStream.readUTF();
+    }
+
+    public Doctor receiveDoctor() {
+        Doctor doctor = null;
+        try {
             int id = dataInputStream.readInt();
             String name = dataInputStream.readUTF();
             String surname = dataInputStream.readUTF();
             String DNI = dataInputStream.readUTF();
-            java.sql.Date birthDate = Date.valueOf (dataInputStream.readUTF());
-            String gender = dataInputStream.readUTF();
+            java.sql.Date birthDate = Date.valueOf(dataInputStream.readUTF());
+            String sex = dataInputStream.readUTF();
             String email = dataInputStream.readUTF();
-            doctor= new Doctor(id, name, surname, DNI, birthDate, gender, email);
-            return doctor;
+            doctor = new Doctor(id, name, surname, DNI, birthDate, sex, email);
 
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        return null;
+        } catch (EOFException ex){
+            System.out.println("Data not correctly read.");
+    }catch(IOException e){
+        System.err.println("Error receiving patient data: " + e.getMessage());
+        e.printStackTrace();
+    }
+        return doctor;
     }
 
     public Patient receivePatient(){
-        Patient patient= null;
-        try{
-            int id=dataInputStream.readInt();
+        Patient patient = null;
+        try {
+            int id = dataInputStream.readInt();
             String name = dataInputStream.readUTF();
             String surname = dataInputStream.readUTF();
-            String DNI = dataInputStream.readUTF();
-            java.sql.Date birthDate = Date.valueOf (dataInputStream.readUTF());
+            String dni = dataInputStream.readUTF();
+            Date birthDate = Date.valueOf(dataInputStream.readUTF());
             String sex = dataInputStream.readUTF();
             Integer phone = dataInputStream.readInt();
             String email = dataInputStream.readUTF();
-            Integer insurance = dataInputStream.readInt();
-            patient= new Patient(id,name,surname,DNI,birthDate,sex,phone,email,insurance);
-        }catch(IOException e){
-            e.printStackTrace();
+            Integer insurance = Integer.valueOf(dataInputStream.readUTF());
+            patient = new Patient(id, name, surname, dni, birthDate, sex, phone, email, insurance);
+        } catch (EOFException ex) {
+            System.out.println("Data not correctly read.");
+        } catch (IOException ex) {
+            System.err.println("Error receiving patient data: " + ex.getMessage());
+            ex.printStackTrace();
         }
         return patient;
     }
@@ -178,7 +174,16 @@ public class ReceiveDataViaNetwork {
         // Crear y devolver el objeto Signal con los datos recibidos
         return new Signal(values, signalFilename, signalType);
     }
-
+    public void releaseResources() {
+        try {
+            if (dataInputStream != null) {
+                dataInputStream.close();
+            }
+        } catch (IOException ex) {
+            System.err.println("Error with resources: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
 
 
 }

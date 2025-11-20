@@ -13,6 +13,9 @@ public class Role {
         this.name = name;
         this.users = users;
     }
+    public Role(String name) {
+        this.name = name;
+    }
 
     public String getId() {
         return id;

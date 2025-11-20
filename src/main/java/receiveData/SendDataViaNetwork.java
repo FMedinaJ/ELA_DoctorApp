@@ -7,49 +7,40 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import pojos.*;
 
 
 
 public class SendDataViaNetwork {
     private DataOutputStream dataOutputStream;
-    public SendDataViaNetwork(Socket socket)  {
-        try{
-            this.dataOutputStream= new DataOutputStream(socket.getOutputStream());
 
-        }catch(IOException e){
-            e.printStackTrace();
-
-        }
-
-    }
-    public void sendString(String data){
-        try{
-            dataOutputStream.writeUTF(data);
-
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
-    }
-
-    public void sendInt(int data){
-        try{
-            dataOutputStream.writeInt(data);
-        }catch(IOException e){
-            e.printStackTrace();
+    public SendDataViaNetwork(Socket socket) {
+        try {
+            this.dataOutputStream = new DataOutputStream(socket.getOutputStream());
+        } catch (IOException ex) {
+            System.err.println("Error al inicializar el flujo de salida: " + ex.getMessage());
+            Logger.getLogger(SendDataViaNetwork.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public void sendUser( User user ){
-        try{
-            dataOutputStream.writeInt(user.getId());
-            dataOutputStream.writeUTF(user.getUsername());
-            dataOutputStream.writeUTF(user.getPasswordEncripted());
-            dataOutputStream.writeUTF(user.getRole().toString());
 
-        }catch(IOException e){
-            e.printStackTrace();
-        }
+    public void sendStrings(String message) throws IOException {
+        dataOutputStream.writeUTF(message);
+        dataOutputStream.flush();
+    }
+
+    public void sendInt(int message) throws IOException {
+        dataOutputStream.writeInt(message);
+        dataOutputStream.flush();
+    }
+
+    public void sendUser(User user) throws IOException{
+        dataOutputStream.writeUTF(user.getEmail());
+        dataOutputStream.writeUTF(String.valueOf(user.getRole()));
+        byte[] password = user.getPasswordEncripted();
+        dataOutputStream.writeUTF(new String(password));
     }
     public void sendMedicalInformation(MedicalInformation medicalInformation) throws IOException {
         // Enviar el ID de la información médica
@@ -80,10 +71,14 @@ public class SendDataViaNetwork {
     }
 
     public void sendPatient(Patient patient) throws IOException{
-        dataOutputStream.writeInt(patient.getId());
         dataOutputStream.writeUTF(patient.getName());
         dataOutputStream.writeUTF(patient.getSurname());
-        dataOutputStream.writeUTF(String.valueOf(patient.getInsurance()));
+        dataOutputStream.writeUTF(patient.getDni());
+        dataOutputStream.writeUTF(String.valueOf(patient.getDateOfBirth()));
+        dataOutputStream.writeUTF(patient.getSex());
+        dataOutputStream.writeInt(patient.getPhone());
+        dataOutputStream.writeUTF(patient.getEmail());
+        dataOutputStream.writeInt(patient.getInsurance());
         dataOutputStream.flush();
     }
 
@@ -115,6 +110,17 @@ public class SendDataViaNetwork {
 
         // Enviar el tipo de señal (signalType) como String
         dataOutputStream.writeUTF(signal.getSignalType().toString());  // Convertir a String y enviar
+    }
+
+    public void releaseResources() {
+        try {
+            if (dataOutputStream != null) {
+                dataOutputStream.close();
+            }
+        } catch (IOException ex) {
+            System.err.println("Error with resources: " + ex.getMessage());
+            Logger.getLogger(SendDataViaNetwork.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
 

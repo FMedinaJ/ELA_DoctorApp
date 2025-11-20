@@ -1,5 +1,6 @@
 package UI;
 
+import pojos.Patient;
 import receiveData.ReceiveDataViaNetwork;
 import receiveData.SendDataViaNetwork;
 
@@ -9,10 +10,6 @@ import java.util.Scanner;
 import pojos.Signal;
 
 public class DoctorApp {
-    private static Socket socket;
-    private static SendDataViaNetwork sendDataViaNetwork;
-    private static ReceiveDataViaNetwork receiveDataViaNetwork;
-    private static Doctor doctor;
     public static void main(String[] args) {
         boolean running = true;
         Scanner scanner = new Scanner(System.in);
@@ -21,16 +18,16 @@ public class DoctorApp {
         while (running) {
             String ipAddress = Utilities.readString("Enter the IP address of the server to connect to:\n");
             try {
-                socket = new Socket(ipAddress, 8000);
-                sendDataViaNetwork = new SendDataViaNetwork(socket);
-                receiveDataViaNetwork = new ReceiveDataViaNetwork(socket);
-                sendDataViaNetwork.sendInt(2);  // Se asume que se está enviando un código para verificar la conexión
+                Socket socket = new Socket("localhost", 8000);
+                SendDataViaNetwork sendDataViaNetwork = new SendDataViaNetwork(socket);
+                ReceiveDataViaNetwork receiveDataViaNetwork = new ReceiveDataViaNetwork(socket);
+                sendDataViaNetwork.sendInt(1);  // Se asume que se está enviando un código para verificar la conexión
                 String message = receiveDataViaNetwork.receiveString();
                 System.out.println(message);
 
                 if (message.equals("DOCTOR")) {
                     // Proceder con las opciones del paciente
-                    showDoctorMenu();
+                    showDoctorMenu(socket, sendDataViaNetwork, receiveDataViaNetwork);
                 } else {
                     System.out.println("Server response invalid. Try again.");
                 }
@@ -40,12 +37,12 @@ public class DoctorApp {
             }
         }
     }
-    public static void showDoctorMenu() {
+    public static void showDoctorMenu(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) {
         boolean running = true;
         Scanner scanner = new Scanner(System.in);
 
         // Crear un único objeto Patient que será usado en todos los casos
-        UI.Doctor doctor = new UI.Doctor();
+        DoctorUI doctorUI = new DoctorUI();
 
         while (running) {
             System.out.println("1- Log in");
@@ -56,15 +53,14 @@ public class DoctorApp {
             switch (option) {
                 case 1:
                     try {
-                        doctor.logIn();  // Llama al método logIn() en la clase doctor
-                        selectPatient();
+                        doctorUI.login(socket,receiveDataViaNetwork,sendDataViaNetwork);  // Llama al método logIn() en la clase doctor
                     } catch (IOException e) {
                         System.out.println("Error during login: " + e.getMessage());
                     }
                     break;
                 case 2:
                     try {
-                        doctor.register();  // Llama al método register() en la clase doctor
+                        doctorUI.register(socket,sendDataViaNetwork,receiveDataViaNetwork);  // Llama al método register() en la clase doctor
                     } catch (IOException e) {
                         System.out.println("Error during registration: " + e.getMessage());
                     }
@@ -78,27 +74,28 @@ public class DoctorApp {
             }
         }
     }
-    public static void selectPatient() {
+    public static void selectPatient(Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork,SendDataViaNetwork sendDataViaNetwork) throws IOException {
         try {
-            // Enviar solicitud para seleccionar un paciente
-            doctor.viewPatients(); // Este método mostrará la lista de pacientes
+            sendDataViaNetwork.sendInt(1);
+            String patientList = receiveDataViaNetwork.receiveString();
+            System.out.println(patientList);
             Scanner scanner = new Scanner(System.in);
-            System.out.print("Choose the patient's ID you want to work with: ");
-            int patientId = scanner.nextInt();  // Leemos el ID del paciente seleccionado
+            System.out.println("Choose an id: ");
+            int id_patient = scanner.nextInt();
 
-            // Enviar el ID al servidor para obtener los datos del paciente
-            sendDataViaNetwork.sendInt(patientId);
-            String patientData = receiveDataViaNetwork.receiveString();  // Recibir datos del paciente desde el servidor
-            System.out.println("Patient Data: " + patientData);
-            menuDoctor(patientId);
+            sendDataViaNetwork.sendInt(id_patient);
+            String patientData= receiveDataViaNetwork.receiveString();// recibir los datos del paciente
+            System.out.println(patientData);//comprobar que esta seleccionado el paciente correco
+            menuDoctor(id_patient,receiveDataViaNetwork,sendDataViaNetwork,socket);
         } catch (IOException e) {
             System.out.println("Error selecting patient: " + e.getMessage());
         }
     }
 
-    public static void menuDoctor(int patientId) throws IOException {
+    public static void menuDoctor(int patientId, ReceiveDataViaNetwork receiveDataViaNetwork,SendDataViaNetwork sendDataViaNetwork, Socket socket) throws IOException {
         boolean running = true;
         Scanner scanner = new Scanner(System.in);
+        DoctorUI doctorUI = new DoctorUI();
         while(running) {
             System.out.println("Welcome to the Doctor App!");
             System.out.println("Please choose an option");
@@ -110,16 +107,16 @@ public class DoctorApp {
 
          switch(option) {
              case 1:
-                 doctor.viewPatientData(patientId);
+                 doctorUI.viewPatientData(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
                  break;
              case 2:
-                 doctor.addFeedback(patientId);
+                 doctorUI.addFeedback(patientId, socket,receiveDataViaNetwork,sendDataViaNetwork);
                  break;
              case 3:
-                 doctor.viewRecordedSignal(patientId);
+                 doctorUI.viewRecordedSignal(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
                  break;
              case 4:
-                 doctor.changePatientData(patientId);
+                 doctorUI.changePatientData(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
                  break;
              case 0:
                  running = false;

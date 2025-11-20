@@ -4,20 +4,20 @@ import java.util.Objects;
 
 public class User {
     private Integer id;
-    private String username;
-    private String passwordEncripted;
+    private String email;
+    private byte[] passwordEncripted;
     private Role role;
 
-    public User(Integer id, String username, String passwordEncripted, Role role) {
+    public User(Integer id, String username, byte[] passwordEncripted, Role role) {
         this.id = id;
-        this.username = username;
+        this.email = username;
         this.passwordEncripted = passwordEncripted;
         this.role = role;
     }
 
-    public User(Integer id, String username, Role role) {
-        this.id = id;
-        this.username = username;
+    public User(String username,byte[] passwordEncripted, Role role) {
+        this.passwordEncripted = passwordEncripted;
+        this.email = username;
         this.role = role;
     }
 
@@ -27,16 +27,16 @@ public class User {
     public void setId(Integer id) {
         this.id = id;
     }
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
-    public String getPasswordEncripted() {
+    public byte[] getPasswordEncripted() {
         return passwordEncripted;
     }
-    public void setPasswordEncripted(String passwordEncripted) {
+    public void setPasswordEncripted(byte[] passwordEncripted) {
         this.passwordEncripted = passwordEncripted;
 
     }
@@ -51,19 +51,19 @@ public class User {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(passwordEncripted, user.passwordEncripted) && Objects.equals(role, user.role);
+        return Objects.equals(id, user.id) && Objects.equals(email, user.email) && Objects.equals(passwordEncripted, user.passwordEncripted) && Objects.equals(role, user.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, passwordEncripted, role);
+        return Objects.hash(id, email, passwordEncripted, role);
     }
 
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", username='" + username + '\'' +
+                ", username='" + email + '\'' +
                 ", passwordEncripted='" + passwordEncripted + '\'' +
                 ", role=" + role +
                 '}';
