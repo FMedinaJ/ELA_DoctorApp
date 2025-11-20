@@ -1,8 +1,6 @@
 package receiveData;
 
 
-import sun.misc.Signal;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -101,8 +99,8 @@ public class SendDataViaNetwork {
 
 
     }
-/**
-    // Método para enviar un Signal
+
+    //Método para enviar un Signal
     public void sendSignal(Signal signal) throws IOException {
         //Enviar la longitud de la lista de valores
         dataOutputStream.writeInt(signal.getValues().size());  // Enviar el tamaño de la lista
@@ -117,7 +115,7 @@ public class SendDataViaNetwork {
 
         // Enviar el tipo de señal (signalType) como String
         dataOutputStream.writeUTF(signal.getSignalType().toString());  // Convertir a String y enviar
-    }**/
+    }
 }
 
 
