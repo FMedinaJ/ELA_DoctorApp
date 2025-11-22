@@ -16,7 +16,7 @@ public class DoctorUI {
     public void register(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
         // Crear un objeto Patient y obtener los datos del paciente
         try {
-            sendDataViaNetwork.sendInt(2); // Indicar al servidor que se va a registrar un paciente
+            sendDataViaNetwork.sendInt(2); // Indicar al servidor que se va a registrar un doctor
 
             Doctor doctor = new Doctor();
             Role role = new Role("Doctor");
@@ -72,7 +72,7 @@ public class DoctorUI {
 
     public void logIn(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
         try {
-            sendDataViaNetwork.sendInt(1);
+            sendDataViaNetwork.sendInt(2);
             System.out.println(receiveDataViaNetwork.receiveString());
 
             String username = Utilities.readString("Enter your username: ");
