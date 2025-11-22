@@ -53,7 +53,7 @@ public class DoctorApp {
             switch (option) {
                 case 1:
                     try {
-                        doctorUI.login(socket,receiveDataViaNetwork,sendDataViaNetwork);  // Llama al método logIn() en la clase doctor
+                        doctorUI.logIn(socket,sendDataViaNetwork,receiveDataViaNetwork);  // Llama al método logIn() en la clase doctor
                     } catch (IOException e) {
                         System.out.println("Error during login: " + e.getMessage());
                     }
@@ -85,7 +85,7 @@ public class DoctorApp {
 
             sendDataViaNetwork.sendInt(id_patient);
             String patientData= receiveDataViaNetwork.receiveString();// recibir los datos del paciente
-            System.out.println(patientData);//comprobar que esta seleccionado el paciente correco
+            System.out.println(patientData);//comprobar que está seleccionado el paciente correco
             menuDoctor(id_patient,receiveDataViaNetwork,sendDataViaNetwork,socket);
         } catch (IOException e) {
             System.out.println("Error selecting patient: " + e.getMessage());

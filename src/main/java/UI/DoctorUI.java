@@ -1,9 +1,6 @@
 package UI;
 
-import pojos.Doctor;
-import pojos.Role;
-import pojos.Signal;
-import pojos.User;
+import pojos.*;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -73,27 +70,55 @@ public class DoctorUI {
         }
     }
 
-    public void login(Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
-        // Crear un objeto Scanner para obtener las credenciales
-        Scanner scanner = new Scanner(System.in);
+    public void logIn(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
+        try {
+            sendDataViaNetwork.sendInt(1);
+            System.out.println(receiveDataViaNetwork.receiveString());
 
-        System.out.println("Enter your username: ");
-        String username = scanner.nextLine();
+            String username = Utilities.readString("Enter your username: ");
 
-        System.out.println("Enter your password: ");
-        String password = scanner.nextLine();
-        sendDataViaNetwork.sendStrings(username);
-        sendDataViaNetwork.sendStrings(password);
-        String response = receiveDataViaNetwork.receiveString(); //la respuesta del servidor
+            String password = Utilities.readString("Enter your password: ");
 
-        if (response.equals("SUCCESS")) {
-            System.out.println("Doctor logged in successfully.");
-            DoctorApp.selectPatient(socket, receiveDataViaNetwork, sendDataViaNetwork);
+            byte[] passwordBytes = password.getBytes();
 
-        } else {
-            System.out.println("Registration failed. Please try again.");
+            Role role = new Role("Doctor");
+
+            if(passwordBytes != null) {
+                sendDataViaNetwork.sendStrings("OK");
+                User user = new User(username, passwordBytes, role);
+                sendDataViaNetwork.sendUser(user);
+                String response = receiveDataViaNetwork.receiveString();
+                System.out.println(response);
+
+                if(response.equals("SUCCESS")) {
+                    try{
+                        Doctor doctor = receiveDataViaNetwork.receiveDoctor();
+                        System.out.println(doctor.toString());
+                        if (doctor != null) {
+                            System.out.println("Log in successful");
+                            DoctorApp.selectPatient(socket, receiveDataViaNetwork, sendDataViaNetwork);
+                        } else {
+                            System.out.println("Doctor not found");
+                        }
+                    } catch (IOException e) {
+                        System.out.println("Log in problem");
+                    }
+                } else if (response.equals("ERROR")) {
+                    System.out.println("User or password is incorrect");
+                } else {
+                    System.out.println("Login failed. Please check your credentials.");
+                }
+
+
+            }else {
+                sendDataViaNetwork.sendStrings("ERROR");
+            }
+
+        }catch(IOException e){
+            System.out.println("Error in connection");
+            releaseResources(socket, sendDataViaNetwork,receiveDataViaNetwork);
+            System.exit(0);
         }
-
     }
 
     public void viewPatientData(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
