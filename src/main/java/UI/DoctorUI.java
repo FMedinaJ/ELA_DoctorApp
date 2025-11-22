@@ -72,7 +72,7 @@ public class DoctorUI {
 
     public void logIn(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
         try {
-            sendDataViaNetwork.sendInt(2);
+            sendDataViaNetwork.sendInt(1);
             System.out.println(receiveDataViaNetwork.receiveString());
 
             String username = Utilities.readString("Enter your username: ");
