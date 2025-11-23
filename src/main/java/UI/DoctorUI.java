@@ -124,14 +124,13 @@ public class DoctorUI {
     public void viewPatientData(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
         // Solicitar los datos del paciente
         sendDataViaNetwork.sendInt(patientId);
-
         // Recibir los detalles del paciente desde el servidor
-        String patientData = receiveDataViaNetwork.receiveString();
-        System.out.println("Patient Data: " + patientData);
+        String patient = receiveDataViaNetwork.receiveString();
+        System.out.println("Showing patient data:\n "+patient);
 
     }
 
-    public void addFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
+    /**public void addFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter your feedback for patient with id: " + patientId);
         String feedback = scanner.nextLine();
@@ -139,9 +138,22 @@ public class DoctorUI {
         sendDataViaNetwork.sendInt(patientId);
         sendDataViaNetwork.sendStrings(feedback);
         String feedbackresponse = receiveDataViaNetwork.receiveString();// respuesta del servidor
-        System.out.println("Feedback response form server: " + feedbackresponse);
+        System.out.println("Feedback response from server: " + feedbackresponse);
 
+    }**/
+    public void addFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your feedback for patient with id: " + patientId);
+        String feedback = scanner.nextLine();
+
+        sendDataViaNetwork.sendStrings("ADD_FEEDBACK");  // comando principal
+        sendDataViaNetwork.sendInt(patientId);
+        sendDataViaNetwork.sendStrings(feedback);
+
+        String response = receiveDataViaNetwork.receiveString();
+        System.out.println("Feedback response from server: " + response);
     }
+
 
     public void viewRecordedSignal(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
         // Enviar solicitud para ver las señales grabadas del paciente

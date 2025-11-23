@@ -76,16 +76,13 @@ public class DoctorApp {
     }
     public static void selectPatient(Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork,SendDataViaNetwork sendDataViaNetwork) throws IOException {
         try {
-            sendDataViaNetwork.sendInt(1);
+
             String patientList = receiveDataViaNetwork.receiveString();
             System.out.println(patientList);
             Scanner scanner = new Scanner(System.in);
             System.out.println("Choose an id: ");
             int id_patient = scanner.nextInt();
-
             sendDataViaNetwork.sendInt(id_patient);
-            String patientData= receiveDataViaNetwork.receiveString();// recibir los datos del paciente
-            System.out.println(patientData);//comprobar que está seleccionado el paciente correco
             menuDoctor(id_patient,receiveDataViaNetwork,sendDataViaNetwork,socket);
         } catch (IOException e) {
             System.out.println("Error selecting patient: " + e.getMessage());
@@ -99,11 +96,12 @@ public class DoctorApp {
         while(running) {
             System.out.println("Welcome to the Doctor App!");
             System.out.println("Please choose an option");
-            System.out.println("View patient's details");
-            System.out.println("Add feedback");
-            System.out.println("View recorded signal");
-            System.out.println("Change patient data");
+            System.out.println("1.View patient's details");
+            System.out.println("2.Add feedback");
+            System.out.println("3.View recorded signal");
+            System.out.println("4.Change patient data");
             int option = scanner.nextInt();
+            sendDataViaNetwork.sendInt(option);
 
          switch(option) {
              case 1:
