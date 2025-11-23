@@ -5,6 +5,7 @@ import pojos.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.Date;
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -141,18 +142,23 @@ public class DoctorUI {
         System.out.println("Feedback response from server: " + feedbackresponse);
 
     }**/
-    public void addFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your feedback for patient with id: " + patientId);
-        String feedback = scanner.nextLine();
-
-        sendDataViaNetwork.sendStrings("ADD_FEEDBACK");  // comando principal
-        sendDataViaNetwork.sendInt(patientId);
-        sendDataViaNetwork.sendStrings(feedback);
-
-        String response = receiveDataViaNetwork.receiveString();
-        System.out.println("Feedback response from server: " + response);
-    }
+//    public void addFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.println("Enter your feedback for patient with id: " + patientId);
+//        String feedback = scanner.nextLine();
+//
+//        sendDataViaNetwork.sendStrings("ADD_FEEDBACK");  // comando principal
+//        sendDataViaNetwork.sendInt(patientId);
+//        sendDataViaNetwork.sendStrings(feedback);
+//
+//        String response = receiveDataViaNetwork.receiveString();
+//        System.out.println("Feedback response from server: " + response);
+//    }
+//    public void ShowListsOfMedicalInformation(List<MedicalInformation> medicalInformation) {
+//        for (MedicalInformation mi : medicalInformation) {
+//            System.out.println(mi.getId() + "\n" + mi.getReportDate() + "\n\n");
+//        }
+//    }
 
 
     public void viewRecordedSignal(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
