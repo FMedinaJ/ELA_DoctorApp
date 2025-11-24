@@ -152,11 +152,53 @@ public class DoctorUI {
 //
 //    }
 
+
     public void viewPatientMedInfo(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
         sendDataViaNetwork.sendInt(patientId);
         List<MedicalInformation> medicalInformationList = receiveDataViaNetwork.receiveMedicalInformationList();
         System.out.println("Showing medical information:");
         System.out.println(medicalInformationList);
+    }
+    public void selectAndUpdateFeedback(int patientid,Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
+
+        Scanner scanner = new Scanner(System.in);
+        sendDataViaNetwork.sendInt(patientid);  // Enviar el patientId al servidor
+
+        // Paso 2: Recibir la lista de registros de medical_information para el paciente
+        String recordsResponse = receiveDataViaNetwork.receiveString();  // Recibir la lista de registros
+
+        // Si no hay registros, mostrar un mensaje al médico
+        if (recordsResponse.equals("No medical records found for this patient.")) {
+            System.out.println(recordsResponse);
+            return;
+        }
+
+        // Mostrar los registros disponibles al médico
+        System.out.println(recordsResponse);  // Ejemplo de respuesta: "1. Date: 2025-11-20 Feedback: No issues."
+
+        // Paso 3: El médico selecciona el registro que quiere actualizar
+        System.out.print("Enter the number of the record you want to update: ");
+        int selectedIndex = scanner.nextInt();  // Leer el índice del registro seleccionado
+
+        // Validar la selección
+        if (selectedIndex < 1 || selectedIndex > recordsResponse.split("\n").length) {
+            System.out.println("Invalid selection. Please try again.");
+            return;
+        }
+
+        // Paso 4: Solicitar el nuevo feedback del médico
+        System.out.print("Enter the new feedback: ");
+        scanner.nextLine();  // Consumir la nueva línea
+        String newFeedback = scanner.nextLine();  // Leer el nuevo feedback
+
+        // Paso 5: Enviar el comando UPDATE_FEEDBACK al servidor, junto con el índice y el nuevo feedback
+        sendDataViaNetwork.sendStrings("UPDATE_FEEDBACK");
+        sendDataViaNetwork.sendInt(selectedIndex);  // Enviar el ID del registro seleccionado
+        sendDataViaNetwork.sendStrings(newFeedback);  // Enviar el nuevo feedback
+
+        // Paso 6: Recibir la respuesta del servidor
+        String response = receiveDataViaNetwork.receiveString();
+        System.out.println("Feedback response from server: " + response);  // Mostrar la respuesta del servidor
     }
 
     public void addFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
