@@ -5,6 +5,7 @@ import pojos.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.Date;
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -122,56 +123,61 @@ public class DoctorUI {
     }
 
     public void viewPatientData(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
-        // Solicitar los datos del paciente
+        // Enviar Id
         sendDataViaNetwork.sendInt(patientId);
         // Recibir los detalles del paciente desde el servidor
         String patient = receiveDataViaNetwork.receiveString();
-        System.out.println("Showing patient data:\n "+patient);
+        System.out.println("Showing patient data:"+patient +"\n");
 
     }
+//    public void viewPatientMedInfo(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
+//        //Enviar id
+//        sendDataViaNetwork.sendInt(patientId);
+//        // Recibir la medical information del paciente desde el servidor
+//        int size  = receiveDataViaNetwork.receiveInt();
+//        System.out.println("Showing patient med info:\n ");
+//        for(int i = 0; i < size; i++) {
+//            System.out.println("------------\n");
+//            System.out.println(receiveDataViaNetwork.receiveInt());
+//            System.out.println(receiveDataViaNetwork.receiveString() + "\n");
+//            int medSize = receiveDataViaNetwork.receiveInt();
+//            for(int j = 0; j < medSize; j++) {
+//                System.out.println(receiveDataViaNetwork.receiveString());
+//            }
+//            int symptomSize = receiveDataViaNetwork.receiveInt();
+//            for(int j = 0; j < symptomSize; j++) {
+//                System.out.println(receiveDataViaNetwork.receiveString());
+//            }
+//        }
+//
+//    }
 
-    public void selectAndUpdateFeedback(int patientid,Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
+    public void viewPatientMedInfo(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
+        sendDataViaNetwork.sendInt(patientId);
+        List<MedicalInformation> medicalInformationList = receiveDataViaNetwork.receiveMedicalInformationList();
+        System.out.println("Showing medical information:");
+        System.out.println(medicalInformationList);
+    }
 
+    public void addFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
+        sendDataViaNetwork.sendInt(patientId);
+        System.out.println("Select a Medical Report:");
+        //vemos el tamaño de la lista de medicamentos para ior imprimiendola con un bucle
+        int size = receiveDataViaNetwork.receiveInt();
+        for(int i = 0; i < size; i++) {
+            System.out.println("------------\n");
+            System.out.println(receiveDataViaNetwork.receiveInt());
+            System.out.println(receiveDataViaNetwork.receiveString() + "\n");
+        }
+
+        System.out.println("SELECT BY TYPING THE ID");
         Scanner scanner = new Scanner(System.in);
-        sendDataViaNetwork.sendInt(patientid);  // Enviar el patientId al servidor
-
-        // Paso 2: Recibir la lista de registros de medical_information para el paciente
-        String recordsResponse = receiveDataViaNetwork.receiveString();  // Recibir la lista de registros
-
-        // Si no hay registros, mostrar un mensaje al médico
-        if (recordsResponse.equals("No medical records found for this patient.")) {
-            System.out.println(recordsResponse);
-            return;
-        }
-
-        // Mostrar los registros disponibles al médico
-        System.out.println(recordsResponse);  // Ejemplo de respuesta: "1. Date: 2025-11-20 Feedback: No issues."
-
-        // Paso 3: El médico selecciona el registro que quiere actualizar
-        System.out.print("Enter the number of the record you want to update: ");
-        int selectedIndex = scanner.nextInt();  // Leer el índice del registro seleccionado
-
-        // Validar la selección
-        if (selectedIndex < 1 || selectedIndex > recordsResponse.split("\n").length) {
-            System.out.println("Invalid selection. Please try again.");
-            return;
-        }
-
-        // Paso 4: Solicitar el nuevo feedback del médico
-        System.out.print("Enter the new feedback: ");
-        scanner.nextLine();  // Consumir la nueva línea
-        String newFeedback = scanner.nextLine();  // Leer el nuevo feedback
-
-        // Paso 5: Enviar el comando UPDATE_FEEDBACK al servidor, junto con el índice y el nuevo feedback
-        sendDataViaNetwork.sendStrings("UPDATE_FEEDBACK");
-        sendDataViaNetwork.sendInt(selectedIndex);  // Enviar el ID del registro seleccionado
-        sendDataViaNetwork.sendStrings(newFeedback);  // Enviar el nuevo feedback
-
-        // Paso 6: Recibir la respuesta del servidor
-        String response = receiveDataViaNetwork.receiveString();
-        System.out.println("Feedback response from server: " + response);  // Mostrar la respuesta del servidor
+        int id = scanner.nextInt();
+        sendDataViaNetwork.sendInt(id);
+        System.out.println("Write the Feedback");
+        String feedback = scanner.nextLine();
+        sendDataViaNetwork.sendStrings(feedback);
     }
-
 
 
     public void viewRecordedSignal(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {

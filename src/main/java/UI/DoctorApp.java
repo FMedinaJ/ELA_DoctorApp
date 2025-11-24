@@ -106,9 +106,11 @@ public class DoctorApp {
          switch(option) {
              case 1:
                  doctorUI.viewPatientData(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
+                 doctorUI.viewPatientMedInfo(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
                  break;
              case 2:
-                 doctorUI.selectAndUpdateFeedback(patientId, socket,receiveDataViaNetwork,sendDataViaNetwork);
+                 doctorUI.addFeedback(patientId, socket,receiveDataViaNetwork,sendDataViaNetwork);
+
                  break;
              case 3:
                  doctorUI.viewRecordedSignal(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
