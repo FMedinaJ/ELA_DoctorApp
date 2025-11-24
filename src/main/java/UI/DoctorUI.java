@@ -247,7 +247,9 @@ public class DoctorUI {
         System.out.println("2 - Surname");
         System.out.println("3 - Phone");
         System.out.println("4 - Email");
-        System.out.println("5 - Insurance");
+        System.out.println("5 - DNI");
+        System.out.println("6 - Sex");
+        System.out.println("7- Insurance");
         System.out.println("0 - Exit");
 
         // Leer la opción seleccionada por el doctor
@@ -255,8 +257,9 @@ public class DoctorUI {
         scanner.nextLine();  // Consumir la nueva línea
 
         // Variables para los nuevos valores
-        String newName = null, newSurname = null, newPhone = null, newEmail = null;
-        Integer newInsurance = null;  // Usamos Integer para los campos int en caso de que no se ingrese un valor
+        String newName = null, newSurname = null,  newEmail = null;
+        String newdni= null, newSex=null;
+        Integer newInsurance = null, newPhone= null; // Usamos Integer para los campos int en caso de que no se ingrese un valor
 
         // Condicionales para manejar la opción seleccionada
         switch (choice) {
@@ -273,12 +276,12 @@ public class DoctorUI {
             case 3:
                 // Solicitar nuevo teléfono (int)
                 System.out.print("Enter new phone number: ");
-                newPhone = scanner.nextLine();
-                // Verificar que el teléfono sea un número válido
+                String newPhoneStr = scanner.nextLine();
+                // Verificar que el seguro sea un número válido
                 try {
-                    Integer.parseInt(newPhone);  // Convertir a int
+                    newPhone = Integer.parseInt(newPhoneStr);  // Convertir a int
                 } catch (NumberFormatException e) {
-                    System.out.println("Invalid phone number. Please enter a valid number.");
+                    System.out.println("Invalid insurance number. Please enter a valid number.");
                     return;  // Salir del método si el número no es válido
                 }
                 break;
@@ -288,6 +291,14 @@ public class DoctorUI {
                 newEmail = scanner.nextLine();
                 break;
             case 5:
+                System.out.print("Enter new DNI: ");
+                newdni= scanner.nextLine();
+                break;
+            case 6:
+                System.out.print("Enter new Sex: ");
+                newSex= scanner.nextLine();
+                break;
+            case 7:
                 // Solicitar nuevo seguro (int)
                 System.out.print("Enter new insurance number: ");
                 String newInsuranceStr = scanner.nextLine();
@@ -325,15 +336,25 @@ public class DoctorUI {
         }
 
         if (newPhone != null) {
-            sendDataViaNetwork.sendInt(Integer.parseInt(newPhone));  // Solo enviar el nuevo teléfono si fue modificado
+            sendDataViaNetwork.sendInt(newPhone);  // Solo enviar el nuevo teléfono si fue modificado
         } else {
-            sendDataViaNetwork.sendStrings("");  // Enviar una cadena vacía si no se modificó
+            sendDataViaNetwork.sendInt(-1);  // Enviar una cadena vacía si no se modificó
         }
 
         if (newEmail != null) {
             sendDataViaNetwork.sendStrings(newEmail);  // Solo enviar el nuevo email si fue modificado
         } else {
             sendDataViaNetwork.sendStrings("");  // Enviar una cadena vacía si no se modificó
+        }
+        if(newdni != null) {
+            sendDataViaNetwork.sendStrings(newdni);
+        }else{
+            sendDataViaNetwork.sendStrings("");
+        }
+        if(newSex != null) {
+            sendDataViaNetwork.sendStrings(newSex);
+        }else{
+            sendDataViaNetwork.sendStrings("");
         }
 
         if (newInsurance != null) {
