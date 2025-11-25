@@ -11,6 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import receiveData. *;
 
+import javax.swing.*;
+
 public class DoctorUI {
     Socket socket2 = null;
 
@@ -382,5 +384,160 @@ public class DoctorUI {
             Logger.getLogger(DoctorApp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public boolean registerFromGUI(
+            String name,
+            String surname,
+            String dni,
+            String dob,
+            String sex,
+            String email,
+            String password,
+            Socket socket,
+            SendDataViaNetwork sendDataViaNetwork,
+            ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
+
+        sendDataViaNetwork.sendInt(2); // registrar doctor
+
+        Doctor doctor = new Doctor();
+        doctor.setName(name);
+        doctor.setSurname(surname);
+        doctor.setDNI(dni);
+        doctor.setBirthDate(Date.valueOf(dob));
+        doctor.setSex(sex);
+        doctor.setEmail(email);
+
+        byte[] passwordBytes = password.getBytes();
+        Role role = new Role("Doctor");
+        User user = new User(email, passwordBytes, role);
+
+        sendDataViaNetwork.sendStrings("OK");
+        sendDataViaNetwork.sendDoctor(doctor);
+        sendDataViaNetwork.sendUser(user);
+
+        String response = receiveDataViaNetwork.receiveString(); // "SUCCESS" o "ERROR"
+        return response.equals("SUCCESS");
+    }
+    public boolean logInFromGUI(
+            String username,
+            String password,
+            Socket socket,
+            SendDataViaNetwork sendDataViaNetwork,
+            ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
+
+        sendDataViaNetwork.sendInt(1); // login
+
+        // mensaje inicial del servidor, lo leemos y lo ignoramos o mostramos en consola
+        String serverMsg = receiveDataViaNetwork.receiveString();
+        System.out.println("Server says: " + serverMsg);
+
+        byte[] passwordBytes = password.getBytes();
+        Role role = new Role("Doctor");
+        User user = new User(username, passwordBytes, role);
+
+        sendDataViaNetwork.sendStrings("OK");
+        sendDataViaNetwork.sendUser(user);
+
+        String response = receiveDataViaNetwork.receiveString(); // "SUCCESS" o "ERROR"
+        if (!response.equals("SUCCESS")) {
+            return false;
+        }
+
+        Doctor doctor = receiveDataViaNetwork.receiveDoctor();
+        System.out.println("Doctor logged in: " + doctor);
+        return doctor != null;
+    }
+    public String viewPatientDataFromGUI(
+            int patientId,
+            Socket socket,
+            ReceiveDataViaNetwork receiveDataViaNetwork,
+            SendDataViaNetwork sendDataViaNetwork) throws IOException {
+
+        // En el menú original se enviaba primero el option = 1
+        sendDataViaNetwork.sendInt(1);      // opción 1 - ver datos
+        sendDataViaNetwork.sendInt(patientId);
+
+        String patient = receiveDataViaNetwork.receiveString();
+        return "Patient data:\n" + patient;
+    }
+    public String changePatientDataFromGUI(
+            int patientId,
+            Socket socket,
+            ReceiveDataViaNetwork receiveDataViaNetwork,
+            SendDataViaNetwork sendDataViaNetwork,
+            java.awt.Component parent) throws IOException {
+
+        String[] options = { "Name", "Surname", "Phone", "Email", "DNI", "Sex", "Insurance" };
+        String choice = (String) JOptionPane.showInputDialog(
+                parent,
+                "What information would you like to change?",
+                "Change patient data",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+
+        if (choice == null) return "Operation cancelled";
+
+        String newName = null, newSurname = null, newEmail = null, newDni = null, newSex = null;
+        Integer newPhone = null, newInsurance = null;
+
+        switch (choice) {
+            case "Name":
+                newName = JOptionPane.showInputDialog(parent, "Enter new name:");
+                if (newName == null) return "Operation cancelled";
+                break;
+            case "Surname":
+                newSurname = JOptionPane.showInputDialog(parent, "Enter new surname:");
+                if (newSurname == null) return "Operation cancelled";
+                break;
+            case "Phone":
+                String phoneStr = JOptionPane.showInputDialog(parent, "Enter new phone:");
+                if (phoneStr == null) return "Operation cancelled";
+                try {
+                    newPhone = Integer.parseInt(phoneStr);
+                } catch (NumberFormatException e) {
+                    return "Invalid phone number.";
+                }
+                break;
+            case "Email":
+                newEmail = JOptionPane.showInputDialog(parent, "Enter new email:");
+                if (newEmail == null) return "Operation cancelled";
+                break;
+            case "DNI":
+                newDni = JOptionPane.showInputDialog(parent, "Enter new DNI:");
+                if (newDni == null) return "Operation cancelled";
+                break;
+            case "Sex":
+                newSex = JOptionPane.showInputDialog(parent, "Enter new sex:");
+                if (newSex == null) return "Operation cancelled";
+                break;
+            case "Insurance":
+                String insuranceStr = JOptionPane.showInputDialog(parent, "Enter new insurance:");
+                if (insuranceStr == null) return "Operation cancelled";
+                try {
+                    newInsurance = Integer.parseInt(insuranceStr);
+                } catch (NumberFormatException e) {
+                    return "Invalid insurance number.";
+                }
+                break;
+        }
+
+        // opción 4 en el menú
+        sendDataViaNetwork.sendInt(4);
+        sendDataViaNetwork.sendInt(patientId);
+
+        if (newName != null) sendDataViaNetwork.sendStrings(newName); else sendDataViaNetwork.sendStrings("");
+        if (newSurname != null) sendDataViaNetwork.sendStrings(newSurname); else sendDataViaNetwork.sendStrings("");
+        if (newPhone != null) sendDataViaNetwork.sendInt(newPhone); else sendDataViaNetwork.sendInt(-1);
+        if (newEmail != null) sendDataViaNetwork.sendStrings(newEmail); else sendDataViaNetwork.sendStrings("");
+        if (newDni != null) sendDataViaNetwork.sendStrings(newDni); else sendDataViaNetwork.sendStrings("");
+        if (newSex != null) sendDataViaNetwork.sendStrings(newSex); else sendDataViaNetwork.sendStrings("");
+        if (newInsurance != null) sendDataViaNetwork.sendInt(newInsurance); else sendDataViaNetwork.sendInt(-1);
+
+        String response = receiveDataViaNetwork.receiveString();
+        return response;
+    }
+
 }
 
