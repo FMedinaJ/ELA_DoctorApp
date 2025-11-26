@@ -18,7 +18,7 @@ public class DoctorApp {
         while (running) {
             String ipAddress = Utilities.readString("Enter the IP address of the server to connect to:\n");
             try {
-                Socket socket = new Socket("localhost", 8000);
+                Socket socket = new Socket("localhost", 8888);
                 SendDataViaNetwork sendDataViaNetwork = new SendDataViaNetwork(socket);
                 ReceiveDataViaNetwork receiveDataViaNetwork = new ReceiveDataViaNetwork(socket);
                 sendDataViaNetwork.sendInt(2);  // Se asume que se está enviando un código para verificar la conexión
@@ -107,6 +107,7 @@ public class DoctorApp {
              case 1:
                  doctorUI.viewPatientData(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
                  //doctorUI.viewPatientMedInfo(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
+                 doctorUI.showMedicalInformation(socket,sendDataViaNetwork,receiveDataViaNetwork);
                  break;
              case 2:
                  //doctorUI.addFeedback(patientId, socket,receiveDataViaNetwork,sendDataViaNetwork);
@@ -130,6 +131,7 @@ public class DoctorApp {
          }
 
         }
+
 
     }
 

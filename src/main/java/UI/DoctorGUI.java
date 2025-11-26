@@ -55,7 +55,7 @@ public class DoctorGUI extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                DoctorClientContext context = new DoctorClientContext("localhost", 8000);
+                DoctorClientContext context = new DoctorClientContext("localhost", 8888);
                 new DoctorGUI(context);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null,

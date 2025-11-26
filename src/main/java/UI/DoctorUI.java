@@ -161,10 +161,24 @@ public class DoctorUI {
         System.out.println("Showing medical information:");
         System.out.println(medicalInformationList);
     }
-    public void selectAndUpdateFeedback(int patientId, Socket socket,
-                                        ReceiveDataViaNetwork receiveDataViaNetwork,
-                                        SendDataViaNetwork sendDataViaNetwork) throws IOException {
 
+    public void showMedicalInformation(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
+        // Solicitar al servidor la información médica del paciente
+        //sendDataViaNetwork.sendInt(1); // Indicar que el doctor quiere ver la información médica
+
+        String patientEmail = Utilities.readString("Enter the patient's email: ");
+        sendDataViaNetwork.sendStrings(patientEmail);  // Enviar el correo del paciente al servidor
+
+        // Recibir la lista de la información médica
+        List<MedicalInformation> medicalInfos = receiveDataViaNetwork.receiveMedicalInformationList();
+
+        // Mostrar la información médica al doctor
+        System.out.println("Medical Information for " + patientEmail);
+        for (MedicalInformation info : medicalInfos) {
+            System.out.println(info);  // Mostrar los detalles de cada informe
+        }
+    }
+    public void selectAndUpdateFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
         Scanner scanner = new Scanner(System.in);
         sendDataViaNetwork.sendInt(patientId);  // Enviar el patientId al servidor
 
