@@ -126,9 +126,9 @@ public class DoctorUI {
 
     public void viewPatientData(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
         // Enviar Id
-        sendDataViaNetwork.sendInt(patientId);
         // Recibir los detalles del paciente desde el servidor
-        String patient = receiveDataViaNetwork.receiveString();
+
+        Patient patient = receiveDataViaNetwork.receivePatient();
         System.out.println("Showing patient data:"+patient +"\n");
 
     }
@@ -164,19 +164,21 @@ public class DoctorUI {
 
     public void showMedicalInformation(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
         // Solicitar al servidor la información médica del paciente
-        //sendDataViaNetwork.sendInt(1); // Indicar que el doctor quiere ver la información médica
-
-        String patientEmail = Utilities.readString("Enter the patient's email: ");
-        sendDataViaNetwork.sendStrings(patientEmail);  // Enviar el correo del paciente al servidor
-
         // Recibir la lista de la información médica
         List<MedicalInformation> medicalInfos = receiveDataViaNetwork.receiveMedicalInformationList();
 
-        // Mostrar la información médica al doctor
-        System.out.println("Medical Information for " + patientEmail);
-        for (MedicalInformation info : medicalInfos) {
-            System.out.println(info);  // Mostrar los detalles de cada informe
+        if(medicalInfos != null) {
+            String response = "RECEIVED MEDICAL INFORMATION";
+            sendDataViaNetwork.sendStrings(response);
+            // Mostrar la información médica al doctor
+            for (MedicalInformation info : medicalInfos) {
+                System.out.println(info);  // Mostrar los detalles de cada informe
+            }
+        }else{
+            System.out.println("Medical information not found");
         }
+
+
     }
     public void selectAndUpdateFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
         Scanner scanner = new Scanner(System.in);

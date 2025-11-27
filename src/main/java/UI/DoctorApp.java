@@ -82,7 +82,12 @@ public class DoctorApp {
             Scanner scanner = new Scanner(System.in);
             System.out.println("Choose an id: ");
             int id_patient = scanner.nextInt();
+
+            System.out.println("id_patient: " + id_patient);
+
             sendDataViaNetwork.sendInt(id_patient);
+
+
             menuDoctor(id_patient,receiveDataViaNetwork,sendDataViaNetwork,socket);
         } catch (IOException e) {
             System.out.println("Error selecting patient: " + e.getMessage());
@@ -90,6 +95,7 @@ public class DoctorApp {
     }
 
     public static void menuDoctor(int patientId, ReceiveDataViaNetwork receiveDataViaNetwork,SendDataViaNetwork sendDataViaNetwork, Socket socket) throws IOException {
+
         boolean running = true;
         Scanner scanner = new Scanner(System.in);
         DoctorUI doctorUI = new DoctorUI();
@@ -106,7 +112,6 @@ public class DoctorApp {
          switch(option) {
              case 1:
                  doctorUI.viewPatientData(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
-                 //doctorUI.viewPatientMedInfo(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
                  doctorUI.showMedicalInformation(socket,sendDataViaNetwork,receiveDataViaNetwork);
                  break;
              case 2:

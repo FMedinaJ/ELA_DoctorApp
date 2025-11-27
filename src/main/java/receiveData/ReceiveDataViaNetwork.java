@@ -53,16 +53,19 @@ public class ReceiveDataViaNetwork {
     public Patient receivePatient(){
         Patient patient = null;
         try {
+            System.out.println("Receiving patient data...");
             int id = dataInputStream.readInt();
             String name = dataInputStream.readUTF();
             String surname = dataInputStream.readUTF();
             String dni = dataInputStream.readUTF();
             Date birthDate = Date.valueOf(dataInputStream.readUTF());
             String sex = dataInputStream.readUTF();
-            Integer phone = dataInputStream.readInt();
+            int phone = dataInputStream.readInt();
             String email = dataInputStream.readUTF();
-            Integer insurance = Integer.valueOf(dataInputStream.readUTF());
-            patient = new Patient(id, name, surname, dni, birthDate, sex, phone, email, insurance);
+            int insurance = dataInputStream.readInt();
+            patient = new Patient(id,name, surname, dni, birthDate, sex, phone, email, insurance);
+            System.out.println(patient);
+            return patient;
         } catch (EOFException ex) {
             System.out.println("Data not correctly read.");
         } catch (IOException ex) {
@@ -87,103 +90,43 @@ public class ReceiveDataViaNetwork {
         }
         return null;
 }
-//    public MedicalInformation receiveMedicalInformation() {
-//        MedicalInformation medicalInformation = null;
-//        try {
-//            int size = dataInputStream.readInt();
-//            for (int i = 0; i < size; i++) {
-//
-//                int id = dataInputStream.readInt();  // Recibe el ID de la información médica
-//                Date reportDate = Date.valueOf(dataInputStream.readUTF());// Recibe la fecha del informe
-//                int symptomsCount = dataInputStream.readInt();  // Número de síntomas
-//                List<Symptom> symptoms = new ArrayList<>();
-//                for (int j = 0; j < symptomsCount; j++) {
-//                    int symptomId = dataInputStream.readInt();// ID del síntoma
-//                    Symptom symptom = getSymptomFromServer(symptomId);
-//                    String description = dataInputStream.readUTF();
-//                    symptoms.add(symptom);
-//                }
-//
-//                // Recibe la lista de medicamentos
-//                int medicationCount = dataInputStream.readInt();
-//                List<String> medication = new ArrayList<>();
-//                for (int j = 0; j< medicationCount; j++) {
-//                    medication.add(dataInputStream.readUTF());  // Agrega cada medicamento a la lista
-//                }
-//
-//                // Recibe el feedback
-//                String feedback = dataInputStream.readUTF();  // Retroalimentación
-//
-//                // Crea la instancia de MedicalInformation con todos los datos
-//                medicalInformation = new MedicalInformation(id,symptoms, reportDate, medication, feedback);
-//
-//
-//            }
-//            } catch (IOException ex) {
-//            System.err.println("Error receiving medical information: " + ex.getMessage());
-//            ex.printStackTrace();
-//        }
-//        return medicalInformation;
-//    }
-//
-//    public List<MedicalInformation> receiveMedicalInformationList() {
-//        List<MedicalInformation> medicalInformationList = null;
-//        MedicalInformation medicalInformation = null;
-//        try {
-//            int size = dataInputStream.readInt();
-//            for (int i = 0; i < size; i++) {
-//
-//                int id = dataInputStream.readInt();  // Recibe el ID de la información médica
-//                Date reportDate = Date.valueOf(dataInputStream.readUTF());// Recibe la fecha del informe
-//                int medicationSize = dataInputStream.readInt();
-//                List<String> medicationList = null;
-//                for (int j = 0; j < medicationSize; j++) {
-//                    String med = dataInputStream.readUTF();
-//                    medicationList.add(med);
-//                }
-//                int symptomsCount = dataInputStream.readInt();  // Número de síntomas
-//                List<Symptom> symptoms = new ArrayList<>();
-//                for (int j = 0; j < symptomsCount; j++) {
-//                    Symptom symptom = null;
-//                    int symptomId = dataInputStream.readInt();  // ID del síntoma
-//                    String description = dataInputStream.readUTF();
-//                    symptom.setId(symptomId);
-//                    symptom.setDescription(description);
-//                    symptoms.add(symptom);
-//                }
-//                String feedback = dataInputStream.readUTF();  // Retroalimentación
-//
-//                // Crea la instancia de MedicalInformation con todos los datos
-//                medicalInformation = new MedicalInformation(id,symptoms,reportDate,medicationList,feedback);
-//                medicalInformationList.add(medicalInformation);
-//            }
-//        } catch (IOException ex) {
-//            System.err.println("Error receiving medical information: " + ex.getMessage());
-//            ex.printStackTrace();
-//        }
-//        return medicalInformationList;
-//    }
+
+
+    public MedicalInformation receiveMedicalInformation() {
+        MedicalInformation medicalInformation = null;
+        try {
+            int id = dataInputStream.readInt();
+
+            Date reportDate = Date.valueOf(dataInputStream.readUTF());  // Recibe la fecha del informe
+
+            List<Symptom> symptoms = receiveSymptoms();
+
+            List<String> medication = receiveMedications();
+
+            String feedback = dataInputStream.readUTF();
+
+            // Crea la instancia de MedicalInformation con todos los datos
+            medicalInformation = new MedicalInformation(id, symptoms, reportDate, medication, feedback);
+
+        } catch (IOException ex) {
+            System.err.println("Error receiving medical information: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        return medicalInformation;
+    }
 
     public List<MedicalInformation> receiveMedicalInformationList() throws IOException {
+
         int size = dataInputStream.readInt();
         List<MedicalInformation> medicalInformationList = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
-            MedicalInformation medicalInformation = receiveMedicalInformation(); // aqui es donde no va
+            MedicalInformation medicalInformation = receiveMedicalInformation();
             medicalInformationList.add(medicalInformation);
         }
         System.out.println("Received medical information, size: " + medicalInformationList.size());
 
         return medicalInformationList;
-    }
-
-    public MedicalInformation receiveMedicalInformation() throws IOException {
-        Date reportDate = Date.valueOf(dataInputStream.readUTF());
-        List<Symptom> symptoms = receiveSymptoms();
-        List<String> medications = receiveMedications();
-        String feedback = dataInputStream.readUTF();
-
-        return new MedicalInformation(symptoms, reportDate, medications, feedback);
     }
 
     public List<Symptom> receiveSymptoms() throws IOException {
