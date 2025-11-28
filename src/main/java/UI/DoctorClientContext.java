@@ -29,4 +29,6 @@ public class DoctorClientContext {
     public SendDataViaNetwork getSendData() { return sendData; }
     public ReceiveDataViaNetwork getReceiveData() { return receiveData; }
     public DoctorUI getDoctorUI() { return doctorUI; }
+    // En tu archivo DoctorClientContext.java
+
 }
