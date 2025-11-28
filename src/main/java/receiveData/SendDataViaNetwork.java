@@ -129,7 +129,7 @@ public class SendDataViaNetwork {
         dataOutputStream.writeUTF(signal.getSignalFilename());
 
         // Enviar el tipo de señal (signalType) como String
-        dataOutputStream.writeUTF(signal.getSignalType().toString());  // Convertir a String y enviar
+        dataOutputStream.writeUTF(signal.getType().toString());  // Convertir a String y enviar
     }
 
     public void releaseResources() {

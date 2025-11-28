@@ -2,15 +2,20 @@ package UI;
 
 import pojos.*;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import receiveData. *;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class DoctorUI {
@@ -240,20 +245,6 @@ public class DoctorUI {
         System.out.println("Write the Feedback");
         String feedback = scanner.nextLine();
         sendDataViaNetwork.sendStrings(feedback);
-    }
-
-
-    public void viewRecordedSignal(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
-        // Enviar solicitud para ver las señales grabadas del paciente
-        sendDataViaNetwork.sendInt(patientId);  // Enviar el ID del paciente
-
-        // Recibir la señal grabada desde el servidor
-        Signal signal = receiveDataViaNetwork.receiveSignal();  // Llamar al método para recibir el Signal
-
-        // Mostrar los detalles de la señal recibida
-        System.out.println("Signal Filename: " + signal.getSignalFilename());
-        System.out.println("Signal Type: " + signal.getSignalType());
-        System.out.println("Signal Values: " + signal.getValues());
     }
 
     public void changePatientData(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
@@ -553,6 +544,111 @@ public class DoctorUI {
 
         String response = receiveDataViaNetwork.receiveString();
         return response;
+    }
+
+    public void viewRecordedSignal(int patientId, Socket socket, ReceiveDataViaNetwork receiveData, SendDataViaNetwork sendData) throws IOException {
+        // 1. Solicitamos al servidor las señales de este paciente
+        sendData.sendInt(patientId);
+
+        // 2. Recibimos la cantidad de señales disponibles
+        int signalCount = receiveData.receiveInt();
+
+        if (signalCount == 0) {
+            System.out.println("No recorded signals found for this patient.");
+            return;
+        }
+
+        // 3. Recibimos la lista de metadatos y la mostramos
+        System.out.println("--- AVAILABLE SIGNALS ---");
+        List<Integer> signalIds = new ArrayList<>();
+
+        for (int i = 0; i < signalCount; i++) {
+            int signalId = receiveData.receiveInt(); // ID de BBDD
+            String type = receiveData.receiveString();
+            String date = receiveData.receiveString();
+
+            signalIds.add(signalId);
+            System.out.println((i + 1) + ". Type: " + type + " | Date: " + date);
+        }
+
+        // 4. El doctor selecciona una
+        int selection = Utilities.readInteger("Select a signal number to view (0 to cancel): ");
+
+        if (selection < 1 || selection > signalCount) {
+            System.out.println("Operation cancelled.");
+            sendData.sendInt(-1); // Enviamos -1 para indicar cancelación al servidor
+            return;
+        }
+
+        // 5. Enviamos el ID de la señal seleccionada (el ID de base de datos, no el índice del menú)
+        int selectedSignalId = signalIds.get(selection - 1);
+        sendData.sendInt(selectedSignalId);
+
+        // 6. Recibimos la señal completa con sus valores
+        System.out.println("Downloading signal data...");
+        Signal signal = receiveData.receiveSignal(); // Este método ya lo tienes en tu clase ReceiveData
+
+        if (signal != null && !signal.getValues().isEmpty()) {
+            System.out.println("Signal received! (" + signal.getValues().size() + " samples)");
+
+            // 7. Generar y abrir la gráfica
+            generateAndOpenGraph(signal);
+        } else {
+            System.out.println("Error receiving signal or signal is empty.");
+        }
+    }
+
+    // --- MÉTODO AUXILIAR PARA GENERAR LA IMAGEN EN EL ORDENADOR DEL DOCTOR ---
+    private void generateAndOpenGraph(Signal signal) {
+        int width = 1000;
+        int height = 600;
+        int padding = 50;
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = image.createGraphics();
+
+        // Fondo blanco
+        g2.setColor(Color.WHITE);
+        g2.fillRect(0, 0, width, height);
+
+        // Ejes
+        g2.setColor(Color.BLACK);
+        g2.drawLine(padding, height - padding, width - padding, height - padding);
+        g2.drawLine(padding, padding, padding, height - padding);
+
+        // Datos
+        List<Integer> values = signal.getValues();
+        double xScale = (double) (width - 2 * padding) / (values.size() - 1);
+        double yScale = (double) (height - 2 * padding) / 1023.0; // BITalino 10-bit max
+
+        g2.setColor(Color.BLUE);
+        for (int i = 0; i < values.size() - 1; i++) {
+            int x1 = padding + (int) (i * xScale);
+            int y1 = height - padding - (int) (values.get(i) * yScale);
+            int x2 = padding + (int) ((i + 1) * xScale);
+            int y2 = height - padding - (int) (values.get(i + 1) * yScale);
+            g2.drawLine(x1, y1, x2, y2);
+        }
+
+        // Títulos
+        g2.setColor(Color.RED);
+        g2.drawString("Signal Type: " + signal.getType(), width / 2, 20);
+        g2.dispose();
+
+        // Guardar y Abrir
+        try {
+            // Guardamos la imagen en una carpeta temporal del Doctor
+            File outputfile = new File("Doctor_View_" + System.currentTimeMillis() + ".png");
+            ImageIO.write(image, "png", outputfile);
+            System.out.println("Graph generated: " + outputfile.getAbsolutePath());
+
+            // Abrir automáticamente
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(outputfile);
+            }
+        } catch (IOException e) {
+            System.out.println("Error creating graph image: " + e.getMessage());
+        }
     }
 
 }

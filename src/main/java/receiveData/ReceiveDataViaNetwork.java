@@ -191,27 +191,33 @@ public class ReceiveDataViaNetwork {
         return patients;  // Regresamos la lista de pacientes
     }
 
-    // Método para recibir un Signal
+    // En receiveData.ReceiveDataViaNetwork.java
+
     public Signal receiveSignal() throws IOException {
-        // Recibir la longitud de la lista de valores
-        int size = dataInputStream.readInt();  // Primero leemos el tamaño de la lista
+        // 1. Recibir TAMAÑO de la lista de valores
+        int size = dataInputStream.readInt();
 
-        // Crear una lista de enteros (List<Integer>)
+        // 2. Recibir VALORES (Muestras)
         List<Integer> values = new ArrayList<>();
-
-        // Leer cada valor de la lista (List<Integer>)
         for (int i = 0; i < size; i++) {
-            values.add(dataInputStream.readInt());  // Recibir y agregar cada valor a la lista
+            values.add(dataInputStream.readInt());
         }
 
-        // Recibir el nombre del archivo (String) - signalFilename
+        // 3. Recibir NOMBRE DE ARCHIVO
         String signalFilename = dataInputStream.readUTF();
 
-        // Recibir el tipo de señal (SignalType) como String y convertirlo a SignalType
-        String signalTypeString = dataInputStream.readUTF();  // Recibimos el tipo de la señal como String
-        SignalType signalType = SignalType.valueOf(signalTypeString);  // Convertimos el String a enum SignalType
+        // 4. Recibir TIPO de señal
+        String signalTypeString = dataInputStream.readUTF();
+        TypeSignal signalType;
+        try {
+            signalType = TypeSignal.valueOf(signalTypeString);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Unknown signal type received: " + signalTypeString);
+            signalType = TypeSignal.EMG; // Default fallback
+        }
 
-        // Crear y devolver el objeto Signal con los datos recibidos
+        // Crear el objeto Signal con el constructor adecuado
+        // Usamos el constructor que creaste: Signal(List<Integer> values, String signalFilename, TypeSignal type)
         return new Signal(values, signalFilename, signalType);
     }
     public void releaseResources() {

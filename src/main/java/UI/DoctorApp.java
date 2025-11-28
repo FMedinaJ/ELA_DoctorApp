@@ -4,6 +4,7 @@ import pojos.Patient;
 import receiveData.ReceiveDataViaNetwork;
 import receiveData.SendDataViaNetwork;
 
+import java.awt.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
@@ -37,7 +38,7 @@ public class DoctorApp {
             }
         }
     }
-    public static void showDoctorMenu(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) {
+    public static void showDoctorMenu(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
         boolean running = true;
         Scanner scanner = new Scanner(System.in);
 
@@ -94,7 +95,7 @@ public class DoctorApp {
         }
     }
 
-    public static void menuDoctor(int patientId, ReceiveDataViaNetwork receiveDataViaNetwork,SendDataViaNetwork sendDataViaNetwork, Socket socket) throws IOException {
+    public static void menuDoctor(int patientId, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork, Socket socket) throws IOException {
 
         boolean running = true;
         Scanner scanner = new Scanner(System.in);
