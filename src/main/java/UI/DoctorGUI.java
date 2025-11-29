@@ -355,7 +355,7 @@ public class DoctorGUI extends JFrame {
 
 
         viewDetailsButton.addActionListener(e -> onViewPatientDetails());
-        // updateFeedbackButton.addActionListener(e -> onUpdateFeedback());
+        updateFeedbackButton.addActionListener(e -> onUpdateFeedback());
         viewSignalButton.addActionListener(e -> onViewSignal());
 
         panel.add(Box.createVerticalStrut(30));
@@ -422,6 +422,31 @@ private void onViewPatientDetails() {
                 SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
                         DoctorGUI.this,
                         "Error viewing recorded signal: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                ));
+            }
+        }).start();
+    }
+    private void onUpdateFeedback() {
+        if (currentPatientId == null) {
+            JOptionPane.showMessageDialog(this, "No patient selected");
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                context.getDoctorUI().selectAndUpdateFeedbackGUI(
+                        currentPatientId,
+                        context.getSocket(),
+                        context.getReceiveData(),
+                        context.getSendData(),
+                        DoctorGUI.this
+                );
+            } catch (IOException e) {
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
+                        DoctorGUI.this,
+                        "Error updating feedback: " + e.getMessage(),
                         "Error",
                         JOptionPane.ERROR_MESSAGE
                 ));
