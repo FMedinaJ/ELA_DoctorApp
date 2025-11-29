@@ -427,12 +427,7 @@ public class DoctorUI {
             System.out.println("Error receiving signal or signal is empty.");
         }
     }
-    public void viewRecordedSignalFromGUI(
-            int patientId,
-            Socket socket,
-            ReceiveDataViaNetwork receiveData,
-            SendDataViaNetwork sendData,
-            Component parent) throws IOException {
+    public void viewRecordedSignalFromGUI(int patientId, Socket socket, ReceiveDataViaNetwork receiveData, SendDataViaNetwork sendData, Component parent) throws IOException {
 
         sendData.sendInt(3);
         sendData.sendInt(patientId);
@@ -562,6 +557,136 @@ public class DoctorUI {
             System.out.println("Error creating graph image: " + e.getMessage());
         }
     }
+    public void selectAndUpdateFeedbackGUI(
+            int patientId,
+            Socket socket,
+            ReceiveDataViaNetwork receiveDataViaNetwork,
+            SendDataViaNetwork sendDataViaNetwork,
+            Component parent) throws IOException {
+
+        sendDataViaNetwork.sendInt(2);
+        sendDataViaNetwork.sendInt(patientId);
+
+        // 2. Recibir lista de registros (texto ya formateado)
+        String recordsResponse = receiveDataViaNetwork.receiveString();
+
+        // Si no hay registros, lo mostramos y salimos
+        if (recordsResponse.startsWith("No medical records")) {
+            JOptionPane.showMessageDialog(
+                    parent,
+                    recordsResponse,
+                    "Medical records",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+
+        // 3. Mostrar registros en un cuadro de texto desplazable
+        JTextArea recordsArea = new JTextArea(recordsResponse, 15, 40);
+        recordsArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(recordsArea);
+
+        JOptionPane.showMessageDialog(
+                parent,
+                scrollPane,
+                "Available medical records",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        // 4. Pedir al doctor qué registro quiere actualizar (número)
+        int maxRecords = recordsResponse.split("\n").length - 1; // igual que en consola
+        int selectedIndex = -1;
+
+        while (true) {
+            String input = JOptionPane.showInputDialog(
+                    parent,
+                    "Enter the number of the record you want to update (1-" + maxRecords + "):",
+                    "Select record",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (input == null) {
+                // Cancelado
+                return;
+            }
+
+            input = input.trim();
+            if (input.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "You must enter a number.",
+                        "Input error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                continue;
+            }
+
+            try {
+                selectedIndex = Integer.parseInt(input);
+                if (selectedIndex < 1 || selectedIndex > maxRecords) {
+                    JOptionPane.showMessageDialog(
+                            parent,
+                            "Invalid selection. Please choose between 1 and " + maxRecords + ".",
+                            "Input error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    continue;
+                }
+                break; // selección correcta
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "Please enter a valid integer number.",
+                        "Input error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
+
+        // 5. Pedir nuevo feedback en un JTextArea para permitir varias líneas
+        JTextArea feedbackArea = new JTextArea(5, 40);
+        feedbackArea.setLineWrap(true);
+        feedbackArea.setWrapStyleWord(true);
+
+        int result = JOptionPane.showConfirmDialog(
+                parent,
+                new JScrollPane(feedbackArea),
+                "Enter the new feedback",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result != JOptionPane.OK_OPTION) {
+            // Doctor canceló la edición
+            return;
+        }
+
+        String newFeedback = feedbackArea.getText().trim();
+        if (newFeedback.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    parent,
+                    "Feedback cannot be empty.",
+                    "Input error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        // 6. Enviar al servidor (mismo orden que en consola: INT -> STRING)
+        sendDataViaNetwork.sendInt(selectedIndex);
+        sendDataViaNetwork.sendStrings(newFeedback);
+
+        // 7. Recibir respuesta final
+        String response = receiveDataViaNetwork.receiveString();
+
+        JOptionPane.showMessageDialog(
+                parent,
+                "Server response: " + response,
+                "Update feedback",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
 
 }
 
