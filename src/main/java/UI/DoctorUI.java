@@ -166,7 +166,7 @@ public class DoctorUI {
         System.out.println("Showing medical information:");
         System.out.println(medicalInformationList);
     }
-
+//Show med info
     public void showMedicalInformation(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
         // Solicitar al servidor la información médica del paciente
         // Recibir la lista de la información médica
