@@ -31,15 +31,22 @@ public class DoctorGUI extends JFrame {
     // Estado
     private Integer currentPatientId = null;
 
+    // Estética
+    private static final Color BG_COLOR = new Color(230, 245, 245);    // turquesa muy claro
+    private static final Color CARD_COLOR = Color.WHITE;
+    private static final Color BORDER_COLOR = new Color(190, 215, 215);
+    private static final Color TEXT_DARK = new Color(25, 40, 40);
+
     public DoctorGUI() {
         super("Telemedicine - Doctor");
-        // Nota: Ya no pedimos el 'context' en el constructor
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 400);
+        setSize(900, 600);
+        setMinimumSize(new Dimension(900, 600));
 
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
+        mainPanel.setBackground(BG_COLOR);
 
         // 1. Crear los paneles
         connectPanel = createConnectPanel(); // <--- Creamos el panel de conexión
@@ -63,10 +70,38 @@ public class DoctorGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // Ya no conectamos aquí, solo lanzamos la interfaz
-            new DoctorGUI();
-        });
+        SwingUtilities.invokeLater(DoctorGUI::new);
+    }
+
+    // ===================== Helpers de estilo =====================
+
+    private JPanel wrapCard(JPanel inner, Dimension prefSize) {
+        JPanel background = new JPanel(new GridBagLayout());
+        background.setBackground(BG_COLOR);
+
+        inner.setBackground(CARD_COLOR);
+        inner.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR),
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
+        if (prefSize != null) {
+            inner.setPreferredSize(prefSize);
+        }
+
+        background.add(inner);
+        return background;
+    }
+
+    private void styleFlatButton(JButton b) {
+        b.setFocusPainted(false);
+        b.setBackground(new Color(243, 250, 250));
+        b.setForeground(TEXT_DARK);
+        b.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR),
+                BorderFactory.createEmptyBorder(8, 18, 8, 18)
+        ));
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setAlignmentX(Component.CENTER_ALIGNMENT);
     }
 
     // ===================== PANTALLA 0: CONEXIÓN AL SERVIDOR =====================
@@ -78,30 +113,34 @@ public class DoctorGUI extends JFrame {
         JLabel title = new JLabel("Welcome to Telemedicine");
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
         title.setFont(new Font("Arial", Font.BOLD, 22));
+        title.setForeground(TEXT_DARK);
 
         JLabel ipLabel = new JLabel("Enter Server IP Address:");
         ipLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Campo de texto con "localhost" por defecto
         ipField = new JTextField("localhost");
-        ipField.setMaximumSize(new Dimension(200, 30));
+        ipField.setMaximumSize(new Dimension(250, 30));
         ipField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton connectButton = new JButton("Connect");
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        styleFlatButton(connectButton);
 
         connectButton.addActionListener(e -> attemptConnection());
 
-        panel.add(Box.createVerticalStrut(50));
+        panel.add(Box.createVerticalStrut(15));
         panel.add(title);
-        panel.add(Box.createVerticalStrut(40));
+        panel.add(Box.createVerticalStrut(25));
         panel.add(ipLabel);
         panel.add(Box.createVerticalStrut(10));
         panel.add(ipField);
         panel.add(Box.createVerticalStrut(20));
         panel.add(connectButton);
+        panel.add(Box.createVerticalStrut(10));
 
-        return panel;
+        // Envolvemos en un fondo de color para centrar la “tarjeta”
+        return wrapCard(panel, new Dimension(380, 300));
     }
 
     private void attemptConnection() {
@@ -113,7 +152,6 @@ public class DoctorGUI extends JFrame {
 
         try {
             // Intentamos conectar creando el contexto
-            // Asumimos puerto 8888 fijo, pero podrías poner otro campo para el puerto
             this.context = new DoctorClientContext(ip, 8888);
 
             // Si no da error, pasamos a la siguiente pantalla
@@ -136,43 +174,60 @@ public class DoctorGUI extends JFrame {
 
         JLabel title = new JLabel("Doctor Login");
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        title.setFont(new Font("Arial", Font.BOLD, 20));
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+        title.setForeground(TEXT_DARK);
 
         JButton loginButton = new JButton("Log in");
         JButton registerButton = new JButton("Register");
 
-        loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        styleFlatButton(loginButton);
+        styleFlatButton(registerButton);
 
         loginButton.addActionListener(e -> showLoginForm());
         registerButton.addActionListener(e -> showRegisterForm());
 
-        panel.add(Box.createVerticalStrut(40));
+        panel.add(Box.createVerticalStrut(20));
         panel.add(title);
-        panel.add(Box.createVerticalStrut(40));
+        panel.add(Box.createVerticalStrut(25));
         panel.add(loginButton);
         panel.add(Box.createVerticalStrut(10));
         panel.add(registerButton);
+        panel.add(Box.createVerticalStrut(15));
 
-        return panel;
+        return wrapCard(panel, new Dimension(380, 300));
     }
 
     private void showLoginForm() {
         JDialog dialog = new JDialog(this, "Log in", true);
-        dialog.setSize(400, 200);
-        dialog.setLayout(new GridLayout(3, 2));
+        dialog.setLayout(new GridBagLayout());
+        dialog.getContentPane().setBackground(CARD_COLOR);
 
-        JTextField emailField = new JTextField();
-        JPasswordField passwordField = new JPasswordField();
+        JPanel content = new JPanel(new GridBagLayout());
+        content.setBackground(CARD_COLOR);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 8, 4, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        dialog.add(new JLabel("Email:"));
-        dialog.add(emailField);
-        dialog.add(new JLabel("Password:"));
-        dialog.add(passwordField);
+        JTextField emailField = new JTextField(18);
+        JPasswordField passwordField = new JPasswordField(18);
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        content.add(new JLabel("Email:"), gbc);
+        gbc.gridx = 1;
+        content.add(emailField, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        content.add(new JLabel("Password:"), gbc);
+        gbc.gridx = 1;
+        content.add(passwordField, gbc);
 
         JButton loginBtn = new JButton("Log in");
-        dialog.add(new JLabel());
-        dialog.add(loginBtn);
+        styleFlatButton(loginBtn);
+
+        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        content.add(loginBtn, gbc);
 
         loginBtn.addActionListener(ev -> {
             String email = emailField.getText();
@@ -203,34 +258,81 @@ public class DoctorGUI extends JFrame {
             }
         });
 
+        dialog.getContentPane().add(content);
+        dialog.pack(); // más fino/compacto
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
 
     private void showRegisterForm() {
         JDialog dialog = new JDialog(this, "Register", true);
-        dialog.setSize(450, 350);
-        dialog.setLayout(new GridLayout(8, 2));
+        dialog.setLayout(new GridBagLayout());
+        dialog.getContentPane().setBackground(CARD_COLOR);
 
-        JTextField nameField = new JTextField();
-        JTextField surnameField = new JTextField();
-        JTextField dniField = new JTextField();
-        JTextField dobField = new JTextField();  // YYYY-MM-DD
-        JTextField sexField = new JTextField();
-        JTextField emailField = new JTextField();
-        JPasswordField passwordField = new JPasswordField();
+        JPanel content = new JPanel(new GridBagLayout());
+        content.setBackground(CARD_COLOR);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(3, 8, 3, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        dialog.add(new JLabel("Name:")); dialog.add(nameField);
-        dialog.add(new JLabel("Surname:")); dialog.add(surnameField);
-        dialog.add(new JLabel("DNI:")); dialog.add(dniField);
-        dialog.add(new JLabel("Birth date (YYYY-MM-DD):")); dialog.add(dobField);
-        dialog.add(new JLabel("Sex (M/F):")); dialog.add(sexField);
-        dialog.add(new JLabel("Email:")); dialog.add(emailField);
-        dialog.add(new JLabel("Password:")); dialog.add(passwordField);
+        JTextField nameField = new JTextField(15);
+        JTextField surnameField = new JTextField(15);
+        JTextField dniField = new JTextField(15);
+        JTextField dobField = new JTextField(15);  // YYYY-MM-DD
+        JTextField sexField = new JTextField(5);
+        JTextField emailField = new JTextField(18);
+        JPasswordField passwordField = new JPasswordField(18);
+
+        int row = 0;
+        gbc.gridx = 0; gbc.gridy = row;
+        content.add(new JLabel("Name:"), gbc);
+        gbc.gridx = 1;
+        content.add(nameField, gbc);
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row;
+        content.add(new JLabel("Surname:"), gbc);
+        gbc.gridx = 1;
+        content.add(surnameField, gbc);
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row;
+        content.add(new JLabel("DNI:"), gbc);
+        gbc.gridx = 1;
+        content.add(dniField, gbc);
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row;
+        content.add(new JLabel("Birth date (YYYY-MM-DD):"), gbc);
+        gbc.gridx = 1;
+        content.add(dobField, gbc);
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row;
+        content.add(new JLabel("Sex (M/F):"), gbc);
+        gbc.gridx = 1;
+        content.add(sexField, gbc);
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row;
+        content.add(new JLabel("Email:"), gbc);
+        gbc.gridx = 1;
+        content.add(emailField, gbc);
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row;
+        content.add(new JLabel("Password:"), gbc);
+        gbc.gridx = 1;
+        content.add(passwordField, gbc);
 
         JButton registerBtn = new JButton("Register");
-        dialog.add(new JLabel());
-        dialog.add(registerBtn);
+        styleFlatButton(registerBtn);
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        content.add(registerBtn, gbc);
 
         registerBtn.addActionListener(ev -> {
             try {
@@ -264,6 +366,8 @@ public class DoctorGUI extends JFrame {
             }
         });
 
+        dialog.getContentPane().add(content);
+        dialog.pack(); // cuadro más pequeño / fino
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
@@ -272,19 +376,24 @@ public class DoctorGUI extends JFrame {
 
     private JPanel createSelectPatientPanel() {
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(CARD_COLOR);
 
         JLabel label = new JLabel("Select one of your patients");
         label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setForeground(TEXT_DARK);
 
         patientListArea = new JTextArea();
         patientListArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(patientListArea);
 
         JPanel bottomPanel = new JPanel();
+        bottomPanel.setBackground(CARD_COLOR);
         bottomPanel.add(new JLabel("Enter patient ID:"));
         patientIdField = new JTextField(10);
         bottomPanel.add(patientIdField);
         JButton selectButton = new JButton("Select");
+        styleFlatButton(selectButton);
         bottomPanel.add(selectButton);
 
         selectButton.addActionListener(e -> selectPatient());
@@ -293,7 +402,7 @@ public class DoctorGUI extends JFrame {
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(bottomPanel, BorderLayout.SOUTH);
 
-        return panel;
+        return wrapCard(panel, new Dimension(600, 450));
     }
 
     private void goToSelectPatientScreen() {
@@ -339,69 +448,77 @@ public class DoctorGUI extends JFrame {
     private JPanel createMenuPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(CARD_COLOR);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR),
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
+        panel.setPreferredSize(new Dimension(420, 320));
 
         JLabel title = new JLabel("Doctor menu - patient selected");
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
         title.setFont(new Font("Arial", Font.BOLD, 18));
+        title.setForeground(TEXT_DARK);
 
         JButton viewDetailsButton = new JButton("View patient details");
         JButton updateFeedbackButton = new JButton("Update feedback");
         JButton viewSignalButton = new JButton("View recorded signal");
 
-
-        viewDetailsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        updateFeedbackButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        viewSignalButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        styleFlatButton(viewDetailsButton);
+        styleFlatButton(updateFeedbackButton);
+        styleFlatButton(viewSignalButton);
 
         viewDetailsButton.addActionListener(e -> onViewPatientDetails());
         updateFeedbackButton.addActionListener(e -> onUpdateFeedback());
         viewSignalButton.addActionListener(e -> onViewSignal());
 
-        panel.add(Box.createVerticalStrut(30));
+        panel.add(Box.createVerticalStrut(15));
         panel.add(title);
-        panel.add(Box.createVerticalStrut(30));
+        panel.add(Box.createVerticalStrut(25));
         panel.add(viewDetailsButton);
-        panel.add(Box.createVerticalStrut(10));
+        panel.add(Box.createVerticalStrut(12));
         panel.add(updateFeedbackButton);
-        panel.add(Box.createVerticalStrut(10));
+        panel.add(Box.createVerticalStrut(12));
         panel.add(viewSignalButton);
+        panel.add(Box.createVerticalStrut(10));
 
-        return panel;
+        return wrapCard(panel, null);
     }
 
+    // ===================== MÉTODOS LÓGICA (NO CAMBIADOS) =====================
 
-private void onViewPatientDetails() {
-    if (currentPatientId == null) {
-        JOptionPane.showMessageDialog(this, "No patient selected");
-        return;
+    private void onViewPatientDetails() {
+        if (currentPatientId == null) {
+            JOptionPane.showMessageDialog(this, "No patient selected");
+            return;
+        }
+        try {
+            String info = context.getDoctorUI().viewPatientDetailsAndMedicalInfoFromGUI(
+                    currentPatientId,
+                    context.getSocket(),
+                    context.getReceiveData(),
+                    context.getSendData()
+            );
+
+            JTextArea area = new JTextArea(info);
+            area.setEditable(false);
+            JOptionPane.showMessageDialog(
+                    this,
+                    new JScrollPane(area),
+                    "Patient details and medical information",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error viewing patient: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
-    try {
-        String info = context.getDoctorUI().viewPatientDetailsAndMedicalInfoFromGUI(
-                currentPatientId,
-                context.getSocket(),
-                context.getReceiveData(),
-                context.getSendData()
-        );
 
-        JTextArea area = new JTextArea(info);
-        area.setEditable(false);
-        JOptionPane.showMessageDialog(
-                this,
-                new JScrollPane(area),
-                "Patient details and medical information",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-
-    } catch (IOException e) {
-        JOptionPane.showMessageDialog(
-                this,
-                "Error viewing patient: " + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-        );
-    }
-}
     private void onViewSignal() {
         if (currentPatientId == null) {
             JOptionPane.showMessageDialog(this, "No patient selected");
@@ -428,6 +545,7 @@ private void onViewPatientDetails() {
             }
         }).start();
     }
+
     private void onUpdateFeedback() {
         if (currentPatientId == null) {
             JOptionPane.showMessageDialog(this, "No patient selected");
@@ -453,7 +571,5 @@ private void onViewPatientDetails() {
             }
         }).start();
     }
-
-
 
 }
