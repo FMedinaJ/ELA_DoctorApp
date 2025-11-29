@@ -659,6 +659,82 @@ public class DoctorUI {
             System.out.println("Error receiving signal or signal is empty.");
         }
     }
+    public void viewRecordedSignalFromGUI(
+            int patientId,
+            Socket socket,
+            ReceiveDataViaNetwork receiveData,
+            SendDataViaNetwork sendData,
+            Component parent) throws IOException {
+
+        // 1. Enviar ID del paciente (igual que en consola: primera línea de tu método antiguo)
+        sendData.sendInt(patientId);
+
+        // 2. Recibir la cantidad de señales disponibles
+        int signalCount = receiveData.receiveInt();
+
+        if (signalCount == 0) {
+            JOptionPane.showMessageDialog(
+                    parent,
+                    "No recorded signals found for this patient.",
+                    "Recorded signals",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+
+        // 3. Recibir la lista de metadatos y mostrarla en un diálogo
+        List<Integer> signalIds = new ArrayList<>();
+        String[] options = new String[signalCount];
+
+        for (int i = 0; i < signalCount; i++) {
+            int signalId = receiveData.receiveInt(); // ID de BBDD
+            String type = receiveData.receiveString();
+            String date = receiveData.receiveString();
+
+            signalIds.add(signalId);
+            options[i] = (i + 1) + ". Type: " + type + " | Date: " + date;
+        }
+
+        // 4. El doctor selecciona una señal en un cuadro de diálogo
+        int choice = JOptionPane.showOptionDialog(
+                parent,
+                "Select a signal to view:",
+                "Recorded signals",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+
+        if (choice < 0) {
+            // Cancelado
+            sendData.sendInt(-1); // igual que en consola
+            return;
+        }
+
+        // 5. Enviar el ID real de la señal seleccionada
+        int selectedSignalId = signalIds.get(choice);
+        sendData.sendInt(selectedSignalId);
+
+        // 6. Recibir la señal completa
+        Signal signal = receiveData.receiveSignal();
+
+        if (signal != null && signal.getValues() != null && !signal.getValues().isEmpty()) {
+            // 7. Reutilizar tu método para generar la gráfica
+            generateAndOpenGraph(signal);
+        } else {
+            JOptionPane.showMessageDialog(
+                    parent,
+                    "Error receiving signal or signal is empty.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+
+
 
     // --- MÉTODO AUXILIAR PARA GENERAR LA IMAGEN EN EL ORDENADOR DEL DOCTOR ---
     private void generateAndOpenGraph(Signal signal) {

@@ -356,7 +356,7 @@ public class DoctorGUI extends JFrame {
 
         viewDetailsButton.addActionListener(e -> onViewPatientDetails());
         // updateFeedbackButton.addActionListener(e -> onUpdateFeedback());
-        // viewSignalButton.addActionListener(e -> onViewSignal());
+        viewSignalButton.addActionListener(e -> onViewSignal());
         modifyDataButton.addActionListener(e -> onChangePatientData());
 
         panel.add(Box.createVerticalStrut(30));
@@ -405,6 +405,43 @@ private void onViewPatientDetails() {
         );
     }
 }
+    private void onViewSignal() {
+        if (currentPatientId == null) {
+            JOptionPane.showMessageDialog(this, "No patient selected");
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                SendDataViaNetwork s = context.getSendData();
+                ReceiveDataViaNetwork r = context.getReceiveData();
+
+                // 0. Enviar la OPCIÓN del menú del doctor
+                // Usa aquí el MISMO número que en DoctorApp.menuDoctor para "view recorded signal"
+                // Si allí era "case 4: doctorUI.viewRecordedSignal(...)" entonces:
+                s.sendInt(3);
+
+                // 1. Lógica de viewRecordedSignal adaptada a GUI
+                context.getDoctorUI().viewRecordedSignalFromGUI(
+                        currentPatientId,
+                        context.getSocket(),
+                        r,
+                        s,
+                        DoctorGUI.this
+                );
+
+            } catch (IOException e) {
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
+                        DoctorGUI.this,
+                        "Error viewing recorded signal: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                ));
+            }
+        }).start();
+    }
+
+
 
 
     private void onChangePatientData() {
