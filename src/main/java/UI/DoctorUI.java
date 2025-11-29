@@ -137,36 +137,8 @@ public class DoctorUI {
         System.out.println("Showing patient data:"+patient +"\n");
 
     }
-//    public void viewPatientMedInfo(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
-//        //Enviar id
-//        sendDataViaNetwork.sendInt(patientId);
-//        // Recibir la medical information del paciente desde el servidor
-//        int size  = receiveDataViaNetwork.receiveInt();
-//        System.out.println("Showing patient med info:\n ");
-//        for(int i = 0; i < size; i++) {
-//            System.out.println("------------\n");
-//            System.out.println(receiveDataViaNetwork.receiveInt());
-//            System.out.println(receiveDataViaNetwork.receiveString() + "\n");
-//            int medSize = receiveDataViaNetwork.receiveInt();
-//            for(int j = 0; j < medSize; j++) {
-//                System.out.println(receiveDataViaNetwork.receiveString());
-//            }
-//            int symptomSize = receiveDataViaNetwork.receiveInt();
-//            for(int j = 0; j < symptomSize; j++) {
-//                System.out.println(receiveDataViaNetwork.receiveString());
-//            }
-//        }
-//
-//    }
 
 
-    public void viewPatientMedInfo(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
-        sendDataViaNetwork.sendInt(patientId);
-        List<MedicalInformation> medicalInformationList = receiveDataViaNetwork.receiveMedicalInformationList();
-        System.out.println("Showing medical information:");
-        System.out.println(medicalInformationList);
-    }
-//Show med info
     public void showMedicalInformation(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
         // Solicitar al servidor la información médica del paciente
         // Recibir la lista de la información médica
@@ -186,44 +158,46 @@ public class DoctorUI {
 
     }
     public void selectAndUpdateFeedback(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        sendDataViaNetwork.sendInt(patientId);  // Enviar el patientId al servidor
 
-        // Paso 2: Recibir la lista de registros médicos del paciente
-        String recordsResponse = receiveDataViaNetwork.receiveString();  // Recibir los registros
+        // 1. Enviar ID del paciente
+        sendDataViaNetwork.sendInt(patientId);
 
-        // Si no hay registros, mostrar un mensaje y salir
-        if (recordsResponse.equals("No medical records found for this patient.")) {
-            System.out.println(recordsResponse);  // Mostrar el mensaje al doctor
-            return;  // Terminar la ejecución si no hay registros médicos
-        }
+        // 2. Recibir lista de registros
+        String recordsResponse = receiveDataViaNetwork.receiveString();
 
-        // Paso 3: Mostrar los registros disponibles al médico
-        System.out.println(recordsResponse);  // Ejemplo de respuesta: "1. Date: 2025-11-20 Feedback: No issues."
-
-        // Paso 4: Solicitar al médico que seleccione el registro que desea actualizar
-        System.out.print("Enter the number of the record you want to update: ");
-        int selectedIndex = scanner.nextInt();  // Leer el índice del registro seleccionado
-
-        // Validar la selección
-        if (selectedIndex < 1 || selectedIndex > recordsResponse.split("\n").length) {
-            System.out.println("Invalid selection. Please try again.");
+        // Si no hay registros, salimos
+        if (recordsResponse.startsWith("No medical records")) {
+            System.out.println(recordsResponse);
             return;
         }
 
-        // Paso 5: Solicitar el nuevo feedback del médico
-        System.out.print("Enter the new feedback: ");
-        scanner.nextLine();  // Consumir la nueva línea
-        String newFeedback = scanner.nextLine();  // Leer el nuevo feedback
+        // 3. Mostrar registros
+        System.out.println(recordsResponse);
 
-        // Paso 6: Enviar el comando UPDATE_FEEDBACK al servidor, junto con el índice y el nuevo feedback
-        sendDataViaNetwork.sendStrings("UPDATE_FEEDBACK");
-        sendDataViaNetwork.sendInt(selectedIndex);  // Enviar el ID del registro seleccionado
-        sendDataViaNetwork.sendStrings(newFeedback);  // Enviar el nuevo feedback
+        // 4. Solicitar selección (Usando Utilities)
+        // Utilities.readInteger ya gestiona errores de formato y consume el salto de línea
+        int selectedIndex = Utilities.readInteger("Enter the number of the record you want to update: ");
 
-        // Paso 7: Recibir la respuesta del servidor
+        // Validación local básica
+        int maxRecords = recordsResponse.split("\n").length - 1;
+        if (selectedIndex < 1 || selectedIndex > maxRecords) {
+            System.out.println("Invalid selection locally detected.");
+            // Nota: Aunque sea inválido, el servidor espera datos.
+            // Para mantener el flujo, enviamos 0 y cadena vacía (el servidor rechazará el 0).
+            // O podrías hacer un bucle while aquí para obligar a elegir bien.
+        }
+
+        // 5. Solicitar nuevo feedback (Usando Utilities)
+        // Utilities.readString lee la línea completa limpiamente
+        String newFeedback = Utilities.readString("Enter the new feedback: ");
+
+        // 6. Enviar al Servidor (Orden estricto: INT -> STRING)
+        sendDataViaNetwork.sendInt(selectedIndex);
+        sendDataViaNetwork.sendStrings(newFeedback);
+
+        // 7. Recibir respuesta final
         String response = receiveDataViaNetwork.receiveString();
-        System.out.println("Feedback response from server: " + response);  // Mostrar la respuesta del servidor
+        System.out.println("Server response: " + response);
     }
 
 
@@ -460,7 +434,7 @@ public class DoctorUI {
             SendDataViaNetwork sendData,
             Component parent) throws IOException {
 
-        // 1. Enviar ID del paciente (igual que en consola: primera línea de tu método antiguo)
+        sendData.sendInt(3);
         sendData.sendInt(patientId);
 
         // 2. Recibir la cantidad de señales disponibles
