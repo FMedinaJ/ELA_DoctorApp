@@ -347,17 +347,16 @@ public class DoctorGUI extends JFrame {
         JButton viewDetailsButton = new JButton("View patient details");
         JButton updateFeedbackButton = new JButton("Update feedback");
         JButton viewSignalButton = new JButton("View recorded signal");
-        JButton modifyDataButton = new JButton("Change patient data");
+
 
         viewDetailsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         updateFeedbackButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         viewSignalButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        modifyDataButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
 
         viewDetailsButton.addActionListener(e -> onViewPatientDetails());
         // updateFeedbackButton.addActionListener(e -> onUpdateFeedback());
         viewSignalButton.addActionListener(e -> onViewSignal());
-        modifyDataButton.addActionListener(e -> onChangePatientData());
 
         panel.add(Box.createVerticalStrut(30));
         panel.add(title);
@@ -367,8 +366,6 @@ public class DoctorGUI extends JFrame {
         panel.add(updateFeedbackButton);
         panel.add(Box.createVerticalStrut(10));
         panel.add(viewSignalButton);
-        panel.add(Box.createVerticalStrut(10));
-        panel.add(modifyDataButton);
 
         return panel;
     }
@@ -441,25 +438,4 @@ private void onViewPatientDetails() {
         }).start();
     }
 
-
-
-
-    private void onChangePatientData() {
-        if (currentPatientId == null) {
-            JOptionPane.showMessageDialog(this, "No patient selected");
-            return;
-        }
-        try {
-            String result = context.getDoctorUI().changePatientDataFromGUI(
-                    currentPatientId,
-                    context.getSocket(),
-                    context.getReceiveData(),
-                    context.getSendData(),
-                    this
-            );
-            JOptionPane.showMessageDialog(this, result);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error changing patient data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
 }

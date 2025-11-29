@@ -106,7 +106,8 @@ public class DoctorApp {
             System.out.println("1.View patient's details");
             System.out.println("2.Add feedback");
             System.out.println("3.View recorded signal");
-            System.out.println("4.Change patient data");
+            System.out.println("0.Exit");
+
             int option = scanner.nextInt();
             sendDataViaNetwork.sendInt(option);
 
@@ -123,9 +124,7 @@ public class DoctorApp {
              case 3:
                  doctorUI.viewRecordedSignal(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
                  break;
-             case 4:
-                 doctorUI.changePatientData(patientId,socket,receiveDataViaNetwork,sendDataViaNetwork);
-                 break;
+
              case 0:
                  running = false;
                  break;
