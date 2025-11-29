@@ -216,9 +216,20 @@ public class ReceiveDataViaNetwork {
             signalType = TypeSignal.EMG; // Default fallback
         }
 
+        String dateString = dataInputStream.readUTF();
+        Date date = null;
+        try {
+            date = Date.valueOf(dateString); // Convertir String "YYYY-MM-DD" a Date
+        } catch (IllegalArgumentException e) {
+            // Si es "Unknown Date" o formato inválido, dejamos null o fecha actual
+            date = new Date(System.currentTimeMillis());
+        }
         // Crear el objeto Signal con el constructor adecuado
         // Usamos el constructor que creaste: Signal(List<Integer> values, String signalFilename, TypeSignal type)
-        return new Signal(values, signalFilename, signalType);
+        Signal signal = new Signal(values, signalFilename, signalType);
+        signal.setDate(date); // <--- AÑADIR LA FECHA AL OBJETO
+
+        return signal;
     }
     public void releaseResources() {
         try {

@@ -564,7 +564,13 @@ public class DoctorUI {
 
         // Títulos
         g2.setColor(Color.RED);
-        g2.drawString("Signal Type: " + signal.getType(), width / 2, 20);
+
+        // Creamos un título compuesto: TIPO + FECHA
+        String titleText = "Signal: " + signal.getType() + " | Date: " + signal.getDate();
+
+        // Lo dibujamos centrado
+        g2.drawString(titleText, width / 2 - 100, 20); // Ajusta la X (-100) para centrar visualmente
+
         g2.dispose();
 
         // Guardar y Abrir
