@@ -137,35 +137,7 @@ public class DoctorUI {
         System.out.println("Showing patient data:"+patient +"\n");
 
     }
-//    public void viewPatientMedInfo(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
-//        //Enviar id
-//        sendDataViaNetwork.sendInt(patientId);
-//        // Recibir la medical information del paciente desde el servidor
-//        int size  = receiveDataViaNetwork.receiveInt();
-//        System.out.println("Showing patient med info:\n ");
-//        for(int i = 0; i < size; i++) {
-//            System.out.println("------------\n");
-//            System.out.println(receiveDataViaNetwork.receiveInt());
-//            System.out.println(receiveDataViaNetwork.receiveString() + "\n");
-//            int medSize = receiveDataViaNetwork.receiveInt();
-//            for(int j = 0; j < medSize; j++) {
-//                System.out.println(receiveDataViaNetwork.receiveString());
-//            }
-//            int symptomSize = receiveDataViaNetwork.receiveInt();
-//            for(int j = 0; j < symptomSize; j++) {
-//                System.out.println(receiveDataViaNetwork.receiveString());
-//            }
-//        }
-//
-//    }
 
-
-    public void viewPatientMedInfo(int patientId, Socket socket, ReceiveDataViaNetwork receiveDataViaNetwork, SendDataViaNetwork sendDataViaNetwork) throws IOException {
-        sendDataViaNetwork.sendInt(patientId);
-        List<MedicalInformation> medicalInformationList = receiveDataViaNetwork.receiveMedicalInformationList();
-        System.out.println("Showing medical information:");
-        System.out.println(medicalInformationList);
-    }
 
     public void showMedicalInformation(Socket socket, SendDataViaNetwork sendDataViaNetwork, ReceiveDataViaNetwork receiveDataViaNetwork) throws IOException {
         // Solicitar al servidor la información médica del paciente
@@ -462,7 +434,7 @@ public class DoctorUI {
             SendDataViaNetwork sendData,
             Component parent) throws IOException {
 
-        // 1. Enviar ID del paciente (igual que en consola: primera línea de tu método antiguo)
+        sendData.sendInt(3);
         sendData.sendInt(patientId);
 
         // 2. Recibir la cantidad de señales disponibles

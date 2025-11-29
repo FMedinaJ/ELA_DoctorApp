@@ -410,20 +410,11 @@ private void onViewPatientDetails() {
 
         new Thread(() -> {
             try {
-                SendDataViaNetwork s = context.getSendData();
-                ReceiveDataViaNetwork r = context.getReceiveData();
-
-                // 0. Enviar la OPCIÓN del menú del doctor
-                // Usa aquí el MISMO número que en DoctorApp.menuDoctor para "view recorded signal"
-                // Si allí era "case 4: doctorUI.viewRecordedSignal(...)" entonces:
-                s.sendInt(3);
-
-                // 1. Lógica de viewRecordedSignal adaptada a GUI
                 context.getDoctorUI().viewRecordedSignalFromGUI(
                         currentPatientId,
                         context.getSocket(),
-                        r,
-                        s,
+                        context.getReceiveData(),
+                        context.getSendData(),
                         DoctorGUI.this
                 );
 
@@ -437,5 +428,7 @@ private void onViewPatientDetails() {
             }
         }).start();
     }
+
+
 
 }
