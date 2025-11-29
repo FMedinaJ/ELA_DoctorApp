@@ -373,26 +373,39 @@ public class DoctorGUI extends JFrame {
         return panel;
     }
 
-    private void onViewPatientDetails() {
-        if (currentPatientId == null) {
-            JOptionPane.showMessageDialog(this, "No patient selected");
-            return;
-        }
-        try {
-            String info = context.getDoctorUI().viewPatientDataFromGUI(
-                    currentPatientId,
-                    context.getSocket(),
-                    context.getReceiveData(),
-                    context.getSendData()
-            );
-            JTextArea area = new JTextArea(info);
-            area.setEditable(false);
-            JOptionPane.showMessageDialog(this, new JScrollPane(area),
-                    "Patient details", JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error viewing patient: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+
+private void onViewPatientDetails() {
+    if (currentPatientId == null) {
+        JOptionPane.showMessageDialog(this, "No patient selected");
+        return;
     }
+    try {
+        String info = context.getDoctorUI().viewPatientDetailsAndMedicalInfoFromGUI(
+                currentPatientId,
+                context.getSocket(),
+                context.getReceiveData(),
+                context.getSendData()
+        );
+
+        JTextArea area = new JTextArea(info);
+        area.setEditable(false);
+        JOptionPane.showMessageDialog(
+                this,
+                new JScrollPane(area),
+                "Patient details and medical information",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+    } catch (IOException e) {
+        JOptionPane.showMessageDialog(
+                this,
+                "Error viewing patient: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+}
+
 
     private void onChangePatientData() {
         if (currentPatientId == null) {

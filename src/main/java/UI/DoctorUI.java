@@ -453,19 +453,81 @@ public class DoctorUI {
         System.out.println("Doctor logged in: " + doctor);
         return doctor != null;
     }
-    public String viewPatientDataFromGUI(
+
+    public String viewPatientDetailsAndMedicalInfoFromGUI(
             int patientId,
             Socket socket,
             ReceiveDataViaNetwork receiveDataViaNetwork,
             SendDataViaNetwork sendDataViaNetwork) throws IOException {
 
-        // En el menú original se enviaba primero el option = 1
-        sendDataViaNetwork.sendInt(1);      // opción 1 - ver datos
+        // 1) Código de operación (ajusta si tu servidor usa otro)
+        sendDataViaNetwork.sendInt(1);
+
+        // 2) Enviar ID del paciente
         sendDataViaNetwork.sendInt(patientId);
 
-        String patient = receiveDataViaNetwork.receiveString();
-        return "Patient data:\n" + patient;
+        // 3) Recibir objeto Patient
+        Patient patient = receiveDataViaNetwork.receivePatient();
+
+        // 4) Recibir lista de informes médicos
+        List<MedicalInformation> medicalInfos = receiveDataViaNetwork.receiveMedicalInformationList();
+
+        if (medicalInfos != null) {
+            sendDataViaNetwork.sendStrings("RECEIVED MEDICAL INFORMATION");
+        }
+
+        // ========================
+        // ----- FORMATO BONITO ---
+        // ========================
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("==== PATIENT DETAILS ====\n");
+
+        sb.append("ID: ").append(patient.getId()).append("\n");
+        sb.append("Name: ").append(patient.getName()).append(" ").append(patient.getSurname()).append("\n");
+        sb.append("DNI: ").append(patient.getDni()).append("\n");
+        sb.append("Birth date: ").append(patient.getDateOfBirth()).append("\n");
+        sb.append("Sex: ").append(patient.getSex()).append("\n");
+        sb.append("Phone: ").append(patient.getPhone()).append("\n");
+        sb.append("Email: ").append(patient.getEmail()).append("\n");
+        sb.append("Insurance: ").append(patient.getInsurance()).append("\n");
+
+        sb.append("\n==== MEDICAL INFORMATION ====\n");
+
+        if (medicalInfos == null || medicalInfos.isEmpty()) {
+            sb.append("No medical information found\n");
+        } else {
+            int index = 1;
+            for (MedicalInformation info : medicalInfos) {
+                sb.append("\n--- Report #").append(index++).append(" ---\n");
+                sb.append("Date: ").append(info.getReportDate()).append("\n");
+
+                // ====== FORMATEO BONITO DE LOS SÍNTOMAS ======
+                // Suponiendo: info.getSymptoms() devuelve List<Symptoms>
+                List<Symptom> symptomsList = info.getSymptoms();
+
+                if (symptomsList == null || symptomsList.isEmpty()) {
+                    sb.append("Symptoms: none\n");
+                } else {
+                    sb.append("Symptoms:\n");
+                    for (Symptom s : symptomsList) {
+                        sb.append(" - ").append(s.getDescription()).append("\n");
+                    }
+                }
+                // =============================================
+
+                sb.append("Doctor feedback: ").append(info.getFeedback()).append("\n");
+            }
+        }
+
+        sb.append("\n==========================\n");
+
+        return sb.toString();
     }
+
+
+
     public String changePatientDataFromGUI(
             int patientId,
             Socket socket,
