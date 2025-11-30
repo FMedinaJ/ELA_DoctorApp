@@ -120,11 +120,15 @@ public class ReceiveDataViaNetwork {
         int size = dataInputStream.readInt();
         List<MedicalInformation> medicalInformationList = new ArrayList<>();
 
-        for (int i = 0; i < size; i++) {
-            MedicalInformation medicalInformation = receiveMedicalInformation();
-            medicalInformationList.add(medicalInformation);
+        if(size == 0) {
+            return medicalInformationList;
+        }else{
+            for (int i = 0; i < size; i++) {
+                MedicalInformation medicalInformation = receiveMedicalInformation();
+                medicalInformationList.add(medicalInformation);
+            }
+            System.out.println("Received medical information, size: " + medicalInformationList.size());
         }
-        System.out.println("Received medical information, size: " + medicalInformationList.size());
 
         return medicalInformationList;
     }

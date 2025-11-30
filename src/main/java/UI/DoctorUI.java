@@ -144,7 +144,7 @@ public class DoctorUI {
         // Recibir la lista de la información médica
         List<MedicalInformation> medicalInfos = receiveDataViaNetwork.receiveMedicalInformationList();
 
-        if(medicalInfos != null) {
+        if(!medicalInfos.isEmpty()) {
             String response = "RECEIVED MEDICAL INFORMATION";
             sendDataViaNetwork.sendStrings(response);
             // Mostrar la información médica al doctor
