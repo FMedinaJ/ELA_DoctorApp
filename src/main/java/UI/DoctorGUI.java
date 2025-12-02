@@ -37,6 +37,12 @@ public class DoctorGUI extends JFrame {
     private static final Color BORDER_COLOR = new Color(190, 215, 215);
     private static final Color TEXT_DARK = new Color(25, 40, 40);
 
+
+    private static final Color BLUE_BUTTON = new Color(86, 132, 225);
+    private static final Font TITLE_FONT = new Font("SansSerif", Font.BOLD, 26);
+    private static final Font SUBTITLE_FONT = new Font("SansSerif", Font.BOLD, 20);
+    private static final Font BUTTON_FONT = new Font("SansSerif", Font.PLAIN, 15);
+
     public DoctorGUI() {
         super("Telemedicine - Doctor");
 
@@ -198,7 +204,7 @@ public class DoctorGUI extends JFrame {
     }
 
     private void showLoginForm() {
-        JDialog dialog = new JDialog(this, "Log in", true);
+        JDialog dialog = new JDialog(this, "Log in Doctor", true);
         dialog.setLayout(new GridBagLayout());
         dialog.getContentPane().setBackground(CARD_COLOR);
 
@@ -221,23 +227,29 @@ public class DoctorGUI extends JFrame {
         gbc.gridx = 1;
         content.add(passwordField, gbc);
 
+        // --- ESTILO VISUAL DEL ADMIN ---
         JButton loginBtn = new JButton("Log in");
-        styleFlatButton(loginBtn);
+        loginBtn.setBackground(BLUE_BUTTON);
+        loginBtn.setForeground(Color.WHITE);
+        loginBtn.setFont(BUTTON_FONT);
+        loginBtn.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
+        loginBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        // -------------------------------
 
         gbc.gridx = 0; gbc.gridy = 2;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         content.add(loginBtn, gbc);
 
-        // --- LÓGICA AJUSTADA (hilo + bloqueo botón) ---
         loginBtn.addActionListener(ev -> {
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
 
-            // Bloquear botón mientras se conecta
+            // 1. Bloquear UI visualmente
             loginBtn.setEnabled(false);
             loginBtn.setText("Connecting...");
 
+            // 2. Lógica en hilo secundario (THREAD)
             new Thread(() -> {
                 try {
                     boolean ok = context.getDoctorUI().logInFromGUI(
@@ -255,168 +267,19 @@ public class DoctorGUI extends JFrame {
                         if (ok) {
                             JOptionPane.showMessageDialog(dialog, "Log in successful");
                             dialog.dispose();
-                            // Mantengo tu flujo actual
-                            goToSelectPatientScreen();
+                            goToSelectPatientScreen(); // Ir a pantalla del Doctor
                         } else {
-                            JOptionPane.showMessageDialog(
-                                    dialog,
+                            JOptionPane.showMessageDialog(dialog,
                                     "Incorrect user or password",
                                     "Login error",
-                                    JOptionPane.ERROR_MESSAGE
-                            );
+                                    JOptionPane.ERROR_MESSAGE);
                         }
                     });
-
                 } catch (IOException ex) {
                     SwingUtilities.invokeLater(() -> {
                         loginBtn.setEnabled(true);
                         loginBtn.setText("Log in");
-                        JOptionPane.showMessageDialog(
-                                dialog,
-                                "Connection error: " + ex.getMessage(),
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE
-                        );
-                    });
-                }
-            }).start();
-        });
-
-        dialog.getContentPane().add(content);
-        dialog.pack(); // más fino/compacto
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-    }
-
-
-    private void showRegisterForm() {
-        JDialog dialog = new JDialog(this, "Register", true);
-        dialog.setLayout(new GridBagLayout());
-        dialog.getContentPane().setBackground(CARD_COLOR);
-
-        JPanel content = new JPanel(new GridBagLayout());
-        content.setBackground(CARD_COLOR);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(3, 8, 3, 8);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        JTextField nameField = new JTextField(15);
-        JTextField surnameField = new JTextField(15);
-        JTextField dniField = new JTextField(15);
-        JTextField dobField = new JTextField(15);  // YYYY-MM-DD
-        JTextField sexField = new JTextField(5);
-        JTextField emailField = new JTextField(18);
-        JPasswordField passwordField = new JPasswordField(18);
-
-        int row = 0;
-        gbc.gridx = 0; gbc.gridy = row;
-        content.add(new JLabel("Name:"), gbc);
-        gbc.gridx = 1;
-        content.add(nameField, gbc);
-
-        row++;
-        gbc.gridx = 0; gbc.gridy = row;
-        content.add(new JLabel("Surname:"), gbc);
-        gbc.gridx = 1;
-        content.add(surnameField, gbc);
-
-        row++;
-        gbc.gridx = 0; gbc.gridy = row;
-        content.add(new JLabel("DNI:"), gbc);
-        gbc.gridx = 1;
-        content.add(dniField, gbc);
-
-        row++;
-        gbc.gridx = 0; gbc.gridy = row;
-        content.add(new JLabel("Birth date (YYYY-MM-DD):"), gbc);
-        gbc.gridx = 1;
-        content.add(dobField, gbc);
-
-        row++;
-        gbc.gridx = 0; gbc.gridy = row;
-        content.add(new JLabel("Sex (M/F):"), gbc);
-        gbc.gridx = 1;
-        content.add(sexField, gbc);
-
-        row++;
-        gbc.gridx = 0; gbc.gridy = row;
-        content.add(new JLabel("Email:"), gbc);
-        gbc.gridx = 1;
-        content.add(emailField, gbc);
-
-        row++;
-        gbc.gridx = 0; gbc.gridy = row;
-        content.add(new JLabel("Password:"), gbc);
-        gbc.gridx = 1;
-        content.add(passwordField, gbc);
-
-        JButton registerBtn = new JButton("Register");
-        styleFlatButton(registerBtn);
-
-        row++;
-        gbc.gridx = 0; gbc.gridy = row;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        content.add(registerBtn, gbc);
-
-        // --- LÓGICA DEL BOTÓN AJUSTADA (igual estilo que Patient) ---
-        registerBtn.addActionListener(ev -> {
-            String name = nameField.getText();
-            String surname = surnameField.getText();
-            String dni = dniField.getText();
-            String dob = dobField.getText();
-            String sex = sexField.getText();
-            String email = emailField.getText();
-            String password = new String(passwordField.getPassword());
-
-            // Bloquear botón visualmente
-            registerBtn.setEnabled(false);
-            registerBtn.setText("Registering...");
-
-            new Thread(() -> {
-                try {
-                    boolean ok = context.getDoctorUI().registerFromGUI(
-                            name,
-                            surname,
-                            dni,
-                            dob,
-                            sex,
-                            email,
-                            password,
-                            context.getSocket(),
-                            context.getSendData(),
-                            context.getReceiveData()
-                    );
-
-                    SwingUtilities.invokeLater(() -> {
-                        registerBtn.setEnabled(true);
-                        registerBtn.setText("Register");
-
-                        if (ok) {
-                            JOptionPane.showMessageDialog(dialog, "Doctor registered successfully");
-                            dialog.dispose();
-                            // Mantengo tu flujo actual:
-                            goToSelectPatientScreen();
-                        } else {
-                            JOptionPane.showMessageDialog(
-                                    dialog,
-                                    "Registration failed",
-                                    "Error",
-                                    JOptionPane.ERROR_MESSAGE
-                            );
-                        }
-                    });
-
-                } catch (IOException ex) {
-                    SwingUtilities.invokeLater(() -> {
-                        registerBtn.setEnabled(true);
-                        registerBtn.setText("Register");
-                        JOptionPane.showMessageDialog(
-                                dialog,
-                                "Connection error: " + ex.getMessage(),
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE
-                        );
+                        JOptionPane.showMessageDialog(dialog, "Connection error: " + ex.getMessage());
                     });
                 }
             }).start();
@@ -428,6 +291,121 @@ public class DoctorGUI extends JFrame {
         dialog.setVisible(true);
     }
 
+    private void showRegisterForm() {
+        JDialog dialog = new JDialog(this, "Register Doctor", true);
+        dialog.setLayout(new GridBagLayout());
+        dialog.getContentPane().setBackground(CARD_COLOR);
+
+        JPanel content = new JPanel(new GridBagLayout());
+        content.setBackground(CARD_COLOR);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(3, 8, 3, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Campos específicos del Doctor
+        JTextField nameField = new JTextField(15);
+        JTextField surnameField = new JTextField(15);
+        JTextField dniField = new JTextField(15);
+        JTextField dobField = new JTextField(15); // YYYY-MM-DD
+        JTextField sexField = new JTextField(5);
+        JTextField emailField = new JTextField(18);
+        JPasswordField passwordField = new JPasswordField(18);
+
+        int row = 0;
+        gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Name:"), gbc); gbc.gridx = 1; content.add(nameField, gbc);
+        row++; gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Surname:"), gbc); gbc.gridx = 1; content.add(surnameField, gbc);
+        row++; gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("DNI:"), gbc); gbc.gridx = 1; content.add(dniField, gbc);
+        row++; gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Birth date:"), gbc); gbc.gridx = 1; content.add(dobField, gbc);
+        row++; gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Sex (M/F):"), gbc); gbc.gridx = 1; content.add(sexField, gbc);
+        row++; gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Email:"), gbc); gbc.gridx = 1; content.add(emailField, gbc);
+        row++; gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Password:"), gbc); gbc.gridx = 1; content.add(passwordField, gbc);
+
+        // --- ESTILO VISUAL DEL ADMIN ---
+        JButton registerBtn = new JButton("Register");
+        registerBtn.setBackground(BLUE_BUTTON);
+        registerBtn.setForeground(Color.WHITE);
+        registerBtn.setFont(BUTTON_FONT);
+        registerBtn.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
+        registerBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        // -------------------------------
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        content.add(registerBtn, gbc);
+
+        registerBtn.addActionListener(ev -> {
+            String name = nameField.getText();
+            String surname = surnameField.getText();
+            String dni = dniField.getText();
+            String dob = dobField.getText();
+            String sex = sexField.getText();
+            String email = emailField.getText();
+            String password = new String(passwordField.getPassword());
+
+            registerBtn.setEnabled(false);
+            registerBtn.setText("Registering...");
+
+            // Hilo secundario para evitar congelar la pantalla
+            new Thread(() -> {
+                try {
+                    boolean ok = context.getDoctorUI().registerFromGUI(
+                            name, surname, dni, dob, sex, email, password,
+                            context.getSocket(), context.getSendData(), context.getReceiveData()
+                    );
+
+                    SwingUtilities.invokeLater(() -> {
+                        registerBtn.setEnabled(true);
+                        registerBtn.setText("Register");
+
+                        if (ok) {
+                            JOptionPane.showMessageDialog(dialog, "Registered successfully. Please log in.");
+                            dialog.dispose();
+
+                            // === LOGICA DE RECONEXION ===
+                            try {
+                                // 1. Cerrar socket viejo
+                                context.getSocket().close();
+
+                                // 2. Obtener IP (asegúrate de que ipField sea accesible aquí)
+                                String ip = (ipField != null) ? ipField.getText().trim() : "localhost";
+                                if (ip.isEmpty()) ip = "localhost";
+
+                                // 3. Crear conexión nueva
+                                context = new DoctorClientContext(ip, 9000);
+
+                                // 4. Mostrar Login
+                                showLoginForm();
+
+                            } catch (IOException e) {
+                                JOptionPane.showMessageDialog(mainPanel,
+                                        "Registered, but reconnection failed.\n" + e.getMessage(),
+                                        "Connection Error", JOptionPane.ERROR_MESSAGE);
+                                cardLayout.show(mainPanel, "AUTH");
+                            }
+                            // ============================
+
+                        } else {
+                            JOptionPane.showMessageDialog(dialog, "Registration failed", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    });
+
+                } catch (IOException ex) {
+                    SwingUtilities.invokeLater(() -> {
+                        registerBtn.setEnabled(true);
+                        registerBtn.setText("Register");
+                        JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage());
+                    });
+                }
+            }).start();
+        });
+
+        dialog.getContentPane().add(content);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
 
     // ===================== PANTALLA 2: SELECT PATIENT =====================
 
