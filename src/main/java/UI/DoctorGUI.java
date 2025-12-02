@@ -374,7 +374,8 @@ public class DoctorGUI extends JFrame {
                         if (ok) {
                             JOptionPane.showMessageDialog(dialog, "Log in successful");
                             dialog.dispose();
-                            goToSelectPatientScreen(); // Metodo específico del Doctor
+                            // Metodo específico del Doctor
+                            goToSelectPatientScreen();
                         } else {
                             JOptionPane.showMessageDialog(dialog,
                                     "Incorrect user or password",
