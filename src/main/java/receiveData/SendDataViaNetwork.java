@@ -115,7 +115,6 @@ public class SendDataViaNetwork {
 
     }
 
-    //Método para enviar un Signal
     public void sendSignal(Signal signal) throws IOException {
         //Enviar la longitud de la lista de valores
         dataOutputStream.writeInt(signal.getValues().size());  // Enviar el tamaño de la lista

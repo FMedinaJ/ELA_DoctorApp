@@ -229,33 +229,57 @@ public class DoctorGUI extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         content.add(loginBtn, gbc);
 
+        // --- LÓGICA AJUSTADA (hilo + bloqueo botón) ---
         loginBtn.addActionListener(ev -> {
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
-            try {
-                boolean ok = context.getDoctorUI().logInFromGUI(
-                        email,
-                        password,
-                        context.getSocket(),
-                        context.getSendData(),
-                        context.getReceiveData()
-                );
-                if (ok) {
-                    JOptionPane.showMessageDialog(dialog, "Log in successful");
-                    dialog.dispose();
-                    goToSelectPatientScreen();
-                } else {
-                    JOptionPane.showMessageDialog(dialog,
-                            "Incorrect user or password",
-                            "Login error",
-                            JOptionPane.ERROR_MESSAGE);
+
+            // Bloquear botón mientras se conecta
+            loginBtn.setEnabled(false);
+            loginBtn.setText("Connecting...");
+
+            new Thread(() -> {
+                try {
+                    boolean ok = context.getDoctorUI().logInFromGUI(
+                            email,
+                            password,
+                            context.getSocket(),
+                            context.getSendData(),
+                            context.getReceiveData()
+                    );
+
+                    SwingUtilities.invokeLater(() -> {
+                        loginBtn.setEnabled(true);
+                        loginBtn.setText("Log in");
+
+                        if (ok) {
+                            JOptionPane.showMessageDialog(dialog, "Log in successful");
+                            dialog.dispose();
+                            // Mantengo tu flujo actual
+                            goToSelectPatientScreen();
+                        } else {
+                            JOptionPane.showMessageDialog(
+                                    dialog,
+                                    "Incorrect user or password",
+                                    "Login error",
+                                    JOptionPane.ERROR_MESSAGE
+                            );
+                        }
+                    });
+
+                } catch (IOException ex) {
+                    SwingUtilities.invokeLater(() -> {
+                        loginBtn.setEnabled(true);
+                        loginBtn.setText("Log in");
+                        JOptionPane.showMessageDialog(
+                                dialog,
+                                "Connection error: " + ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    });
                 }
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(dialog,
-                        "Connection error: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
+            }).start();
         });
 
         dialog.getContentPane().add(content);
@@ -263,6 +287,7 @@ public class DoctorGUI extends JFrame {
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
+
 
     private void showRegisterForm() {
         JDialog dialog = new JDialog(this, "Register", true);
@@ -334,43 +359,75 @@ public class DoctorGUI extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         content.add(registerBtn, gbc);
 
+        // --- LÓGICA DEL BOTÓN AJUSTADA (igual estilo que Patient) ---
         registerBtn.addActionListener(ev -> {
-            try {
-                boolean ok = context.getDoctorUI().registerFromGUI(
-                        nameField.getText(),
-                        surnameField.getText(),
-                        dniField.getText(),
-                        dobField.getText(),
-                        sexField.getText(),
-                        emailField.getText(),
-                        new String(passwordField.getPassword()),
-                        context.getSocket(),
-                        context.getSendData(),
-                        context.getReceiveData()
-                );
-                if (ok) {
-                    JOptionPane.showMessageDialog(dialog, "Doctor registered successfully");
-                    dialog.dispose();
-                    goToSelectPatientScreen();
-                } else {
-                    JOptionPane.showMessageDialog(dialog,
-                            "Registration failed",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
+            String name = nameField.getText();
+            String surname = surnameField.getText();
+            String dni = dniField.getText();
+            String dob = dobField.getText();
+            String sex = sexField.getText();
+            String email = emailField.getText();
+            String password = new String(passwordField.getPassword());
+
+            // Bloquear botón visualmente
+            registerBtn.setEnabled(false);
+            registerBtn.setText("Registering...");
+
+            new Thread(() -> {
+                try {
+                    boolean ok = context.getDoctorUI().registerFromGUI(
+                            name,
+                            surname,
+                            dni,
+                            dob,
+                            sex,
+                            email,
+                            password,
+                            context.getSocket(),
+                            context.getSendData(),
+                            context.getReceiveData()
+                    );
+
+                    SwingUtilities.invokeLater(() -> {
+                        registerBtn.setEnabled(true);
+                        registerBtn.setText("Register");
+
+                        if (ok) {
+                            JOptionPane.showMessageDialog(dialog, "Doctor registered successfully");
+                            dialog.dispose();
+                            // Mantengo tu flujo actual:
+                            goToSelectPatientScreen();
+                        } else {
+                            JOptionPane.showMessageDialog(
+                                    dialog,
+                                    "Registration failed",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE
+                            );
+                        }
+                    });
+
+                } catch (IOException ex) {
+                    SwingUtilities.invokeLater(() -> {
+                        registerBtn.setEnabled(true);
+                        registerBtn.setText("Register");
+                        JOptionPane.showMessageDialog(
+                                dialog,
+                                "Connection error: " + ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    });
                 }
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(dialog,
-                        "Connection error: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
+            }).start();
         });
 
         dialog.getContentPane().add(content);
-        dialog.pack(); // cuadro más pequeño / fino
+        dialog.pack();
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
+
 
     // ===================== PANTALLA 2: SELECT PATIENT =====================
 

@@ -74,23 +74,6 @@ public class ReceiveDataViaNetwork {
         }
         return patient;
     }
-    //Obtiene el sintoma desde el servidor, se solicita la informacion.
-    public Symptom getSymptomFromServer(int symptomId) {
-        try {
-            // Aquí podrías enviar el ID del síntoma al servidor y esperar la respuesta
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            out.println(symptomId);  // Enviando solicitud de síntoma por ID
-
-            // Esperando la respuesta (el objeto Symptom) del servidor
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-            return (Symptom) objectInputStream.readObject();  // Recibiendo el objeto Symptom
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error fetching symptom from server: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return null;
-}
-
 
     public MedicalInformation receiveMedicalInformation() {
         MedicalInformation medicalInformation = null;
@@ -177,25 +160,6 @@ public class ReceiveDataViaNetwork {
         }
         return message;
     }
-    public List<Patient> receivePatientList() {
-        List<Patient> patients = new ArrayList<>();
-        try {
-            int numberOfPatients = dataInputStream.readInt();  // Primero, leer cuántos pacientes hay
-                for (int i = 0; i < numberOfPatients; i++) {
-                    // Aquí estamos utilizando el método `receivePatient` para recibir a cada paciente individualmente
-                    Patient patient = receivePatient();
-                    if (patient != null) {
-                        patients.add(patient);
-                    }
-            }
-        } catch (IOException e) {
-            System.err.println("Error receiving patient list: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return patients;  // Regresamos la lista de pacientes
-    }
-
-    // En receiveData.ReceiveDataViaNetwork.java
 
     public Signal receiveSignal() throws IOException {
         // 1. Recibir TAMAÑO de la lista de valores
